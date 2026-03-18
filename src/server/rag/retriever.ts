@@ -42,8 +42,8 @@ export interface RetrieverOutput {
 let _embeddingProvider: EmbeddingProvider | null = null;
 async function getEmbeddingProvider(): Promise<EmbeddingProvider> {
   if (_embeddingProvider) return _embeddingProvider;
-  const { GeminiEmbeddingProvider } = await import("@/server/ai/providers/gemini-embedding-provider");
-  _embeddingProvider = new GeminiEmbeddingProvider();
+  const { LocalEmbeddingProvider } = await import("@/server/ai/providers/local-embedding-provider");
+  _embeddingProvider = new LocalEmbeddingProvider();
   return _embeddingProvider;
 }
 

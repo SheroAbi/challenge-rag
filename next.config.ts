@@ -1,7 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: [
+    '@xenova/transformers',
+    'onnxruntime-node',
+    'onnxruntime-web',
+  ],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [
+        ...(Array.isArray(config.externals) ? config.externals : []),
+        '@xenova/transformers',
+        'onnxruntime-node',
+        'onnxruntime-web',
+      ];
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

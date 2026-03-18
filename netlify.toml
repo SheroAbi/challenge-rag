@@ -2,5 +2,22 @@
   command = "npm run build"
   publish = ".next"
 
+[build.environment]
+  NODE_VERSION = "20"
+  TRANSFORMERS_JS_NODE_TYPE = "web"
+  NEXT_TELEMETRY_DISABLED = "1"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[functions]
+  included_files = [
+    "node_modules/onnxruntime-web/dist/*.wasm",
+    "node_modules/onnxruntime-web/dist/*.mjs"
+  ]
+  node_bundler = "esbuild"
+  external_node_modules = [
+    "@xenova/transformers",
+    "onnxruntime-web",
+    "onnxruntime-node"
+  ]
