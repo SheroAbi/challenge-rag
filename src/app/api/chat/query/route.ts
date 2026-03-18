@@ -121,12 +121,17 @@ export async function POST(
     });
   } catch (err) {
     // Log full error server-side for debugging
+    const rawMessage = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
     console.error(`[chat/query] requestId=${requestId}`, err);
 
     const { code, message, hint, status } = classifyError(err);
 
     return NextResponse.json(
-      apiError(code, message, undefined, hint, requestId),
+      {
+        ...apiError(code, message, undefined, hint, requestId),
+        debugInfo: `${rawMessage}${stack ? '\n\n' + stack.split('\n').slice(0, 5).join('\n') : ''}`,
+      },
       { status }
     );
   }
