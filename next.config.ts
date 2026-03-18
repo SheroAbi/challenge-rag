@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  turbopack: {}, // Silence the Next.js 16 error when using a custom webpack config
 };
 
 export default nextConfig;
