@@ -32,7 +32,7 @@ graph TB
         GenericRetriever["Generic Semantic Retriever"]
         FoodIndexer["Food Indexer"]
         DatasetIndexer["Dataset Indexer"]
-        LocalEmbed["Local Embedding (Xenova)"]
+        RemoteEmbed["Remote Microservice (Render.com)"]
         GeminiGen["Gemini Answer Generator"]
     end
 
@@ -48,8 +48,8 @@ graph TB
     Orchestrator --> ThemeRouter
     ThemeRouter --> FoodRetriever
     ThemeRouter --> GenericRetriever
-    FoodRetriever --> LocalEmbed
-    GenericRetriever --> LocalEmbed
+    FoodRetriever --> RemoteEmbed
+    GenericRetriever --> RemoteEmbed
     FoodRetriever --> FoodChunks
     FoodRetriever --> FoodItems
     GenericRetriever --> SaasChunks
@@ -59,17 +59,17 @@ graph TB
     Upload --> UploadAPI
     UploadAPI --> FoodIndexer --> FoodChunks
     UploadAPI --> DatasetIndexer --> SaasChunks
-    FoodIndexer --> LocalEmbed
-    DatasetIndexer --> LocalEmbed
+    FoodIndexer --> RemoteEmbed
+    DatasetIndexer --> RemoteEmbed
     UploadAPI --> ImportRuns
 ```
 
 ## 2. Design-Entscheidungen
 
-### Lokale Embeddings statt Cloud-API
-- **Warum**: Keine Rate-Limits, keine API-Kosten, keine Latenz-Varianz
-- **Wie**: `@xenova/transformers` lädt `all-MiniLM-L6-v2` (384 Dimensionen) on-demand
-- **Trade-off**: Erste Anfrage hat Cold-Start (~2-5s), danach gecached
+### Dedizierter Microservice statt Serverless-Embeddings
+- **Warum**: Netlify Lambda (Serverless) unterstützt das Ausführen nativer ONNX-Binaries (für `@xenova/transformers`) nicht. Externe APIs (wie HuggingFace) haben Rate-Limits oder verlangen Authentifizierung.
+- **Wie**: Ein minimaler Node/Express-Container auf Render.com führt `@xenova/transformers` (`all-MiniLM-L6-v2`, 384 Dimensionen) performant aus. Die Next.js App kommuniziert via REST-API.
+- **Vorteil**: Keine Re-Indexierung der bestehenden 50.000+ Supabase-Einträge nötig, da exakt das gleiche Modell verwendet wird. Die Haupt-App auf Netlify ist extrem entlastet.
 
 ### Hybrid-Retrieval für Food
 - **Trigram-Suche** (`pg_trgm`): Exakte/fuzzy Namens-Matches
@@ -144,5 +144,5 @@ Alle API-Ein- und Ausgaben sind via Zod-Schemas typsicher definiert:
 
 ### Anderen Embedding-Provider nutzen
 1. Neue Klasse die `EmbeddingProvider` implementiert
-2. In `food-indexer.ts`, `dataset-indexer.ts`, Retrievern austauschen
+2. In den Retrievern und Indexern austauschen
 3. Dimensionen in Migrations anpassen

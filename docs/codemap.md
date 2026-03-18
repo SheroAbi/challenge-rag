@@ -39,7 +39,7 @@
 |---|---|
 | `config/gemini-config.ts` | Gemini-Konfiguration (Generation-only, Env-Validierung) |
 | `providers/embedding-provider.ts` | EmbeddingProvider Interface + Stub |
-| `providers/local-embedding-provider.ts` | Xenova/Transformers lokale Embeddings (all-MiniLM-L6-v2) |
+| `providers/remote-embedding-provider.ts` | Ruft den Render.com Embedding Microservice via HTTP auf |
 | `providers/answer-generator.ts` | AnswerGenerator Interface + Stub |
 | `providers/gemini-answer-generator.ts` | Gemini LLM Generierung |
 | `providers/retriever.ts` | Retriever Interface + Stub |
@@ -99,6 +99,13 @@
 | `004_saas_exercises_hnsw.sql` | HNSW-Indizes + RPC-Updates |
 | `005_remove_workspace_id_from_rpcs.sql` | Single-Tenant RPC-Refactoring |
 | `006_runtime_alignment.sql` | pg_trgm, import_runs, import_errors, get_rag_tables() |
+
+## `embedding-service/` – Embedding Microservice (Render.com)
+
+| Datei | Zweck |
+|---|---|
+| `index.mjs` | Minimaler Express Server mit `@xenova/transformers` (all-MiniLM-L6-v2) |
+| `package.json` | Dependencies für den dedizierten Service |
 
 ## Root-Konfiguration
 

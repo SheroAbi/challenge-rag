@@ -1,7 +1,6 @@
 # Everlast RAG – Multi-Theme Knowledge Base
 
-> **Recruiting-Challenge**: Vollständig implementiertes RAG-System mit lokalen Embeddings, Gemini-Generierung und Multi-Theme-Retrieval.
-
+> **Recruiting-Challenge**: Vollständig implementiertes RAG-System mit Remote Microservice Embeddings, Gemini-Generierung und Multi-Theme-Retrieval.
 ---
 
 ## Quick Start
@@ -31,9 +30,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 # Gemini (Pflicht für LLM-Generierung)
 GEMINI_API_KEY=your-gemini-api-key
 GEMINI_GENERATION_MODEL=gemini-2.0-flash
+# Embedding Microservice (Render.com)
+EMBEDDING_SERVICE_URL=https://challenge-rag.onrender.com
 ```
 
-> **Embeddings laufen lokal** via `@xenova/transformers` – kein externer API-Key nötig.
+> **Embeddings laufen über einen dedizierten Microservice** (Render.com) mit `@xenova/transformers` – entlastet die Haupt-App, umgeht Serverless-Limitierungen auf Netlify und braucht keine externen Paid-APIs.
 
 ## Technologie-Stack
 
@@ -44,7 +45,7 @@ GEMINI_GENERATION_MODEL=gemini-2.0-flash
 | **TypeScript** | 5.x | Strict Mode |
 | **Tailwind CSS** | 4.x | Design System mit Dark Mode |
 | **Supabase** | 2.x | PostgreSQL + pgvector + HNSW |
-| **@xenova/transformers** | 2.x | Lokale Embeddings (all-MiniLM-L6-v2) |
+| **@xenova/transformers** | 2.x | Remote Microservice Embeddings (all-MiniLM-L6-v2) auf Render.com |
 | **Gemini API** | — | LLM-Generierung (Antworten) |
 | **Zod** | 4.x | Schema-Validierung |
 
@@ -95,6 +96,9 @@ challenge-rag/
 │   │   └── domain/types.ts           # Domänentypen
 │   ├── integrations/supabase/        # Supabase-Client
 │   └── lib/                          # Utilities + Error-Klassen
+├── embedding-service/                # Dedizierter Embedding Microservice (Render.com)
+│   ├── index.mjs                     # Express Server
+│   └── package.json                  # Dependencies
 ├── supabase/migrations/              # 6 SQL-Migrationen
 ├── docs/                             # Doku (Blueprint, Codemap, Erklärung)
 └── package.json

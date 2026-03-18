@@ -16,7 +16,7 @@ RAG-Orchestrator
     ├── Food-Theme → FoodHybridRetriever (Trigram + Semantic)
     └── Andere Themes → GenericSemanticRetriever (Semantic only)
     ↓
-Lokales Embedding (Xenova all-MiniLM-L6-v2)
+Remote Microservice Embedding (Render.com HTTP Call)
     ↓
 pgvector Similarity Search (Supabase RPCs)
     ↓
@@ -61,7 +61,7 @@ Einfacher Liveness-Check. Prüft Supabase-URL und Gemini-Konfiguration dynamisch
 
 ### AI Provider (`ai/providers/`)
 - **`embedding-provider.ts`**: Interface `EmbeddingProvider` mit `embed()` und `embedSingle()`
-- **`local-embedding-provider.ts`**: Implementierung via `@xenova/transformers`. Lädt `all-MiniLM-L6-v2` on-demand, cached das Modell, normalisiert Vektoren (L2)
+- **`remote-embedding-provider.ts`**: Aufruf des Render.com Microservices (`embedding-service/`). Umgeht Netlify Serverless (ONNX) Einschränkungen, behält aber das gleiche Modell `all-MiniLM-L6-v2`.
 - **`answer-generator.ts`**: Interface `AnswerGenerator`
 - **`gemini-answer-generator.ts`**: Gemini REST API Anbindung. Baut System-Prompt mit Kontext-Chunks, sendet an `generativelanguage.googleapis.com`
 - **`retriever.ts`**: Interface `Retriever` mit generischem `search()` Vertrag

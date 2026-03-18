@@ -274,6 +274,9 @@ export function AppSidebar({ onLinkClick, isCollapsed, onToggleCollapse, isMobil
             <ExternalLink className="h-4 w-4 shrink-0" />
           </Link>
           
+          <div className="mt-1 text-center text-[10px] text-muted-foreground/50 font-medium tracking-wider uppercase">
+            Made by Sherif
+          </div>
 
         </motion.div>
 
@@ -294,6 +297,10 @@ export function AppSidebar({ onLinkClick, isCollapsed, onToggleCollapse, isMobil
           >
             <ExternalLink className="h-4 w-4 shrink-0 group-hover:scale-110 transition-transform" />
           </Link>
+
+          <div className="mt-1 flex justify-center w-full" title="Made by Sherif">
+            <span className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-tighter">BY S.</span>
+          </div>
         </motion.div>
 
       </div>
