@@ -19,5 +19,6 @@
   external_node_modules = [
     "@xenova/transformers",
     "onnxruntime-web",
-    "onnxruntime-node"
+    "onnxruntime-node",
+    "onnxruntime-common"
   ]

@@ -5,15 +5,17 @@ const nextConfig: NextConfig = {
     '@xenova/transformers',
     'onnxruntime-node',
     'onnxruntime-web',
+    'onnxruntime-common',
   ],
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals = [
-        ...(Array.isArray(config.externals) ? config.externals : []),
+      config.externals = config.externals || [];
+      config.externals.push(
         '@xenova/transformers',
         'onnxruntime-node',
         'onnxruntime-web',
-      ];
+        'onnxruntime-common'
+      );
     }
     return config;
   },
