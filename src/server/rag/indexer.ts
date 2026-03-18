@@ -10,12 +10,15 @@ import type { EmbeddingProvider } from "@/server/ai/providers/embedding-provider
 import type { NormalizedFood } from "@/server/food/normalizer";
 import * as crypto from "crypto";
 
-// Lazy-load to avoid crashing Netlify serverless (ONNX native binary not available)
+// Remote embedding provider – calls Supabase Edge Function instead of loading
+// @xenova/transformers locally (ONNX binaries are not available on Netlify Lambda)
+import { RemoteEmbeddingProvider } from "@/server/ai/providers/remote-embedding-provider";
+
 let _embeddingProvider: EmbeddingProvider | null = null;
-async function getEmbeddingProvider(): Promise<EmbeddingProvider> {
-  if (_embeddingProvider) return _embeddingProvider;
-  const { LocalEmbeddingProvider } = await import("@/server/ai/providers/local-embedding-provider");
-  _embeddingProvider = new LocalEmbeddingProvider();
+function getEmbeddingProvider(): EmbeddingProvider {
+  if (!_embeddingProvider) {
+    _embeddingProvider = new RemoteEmbeddingProvider();
+  }
   return _embeddingProvider;
 }
 export { _embeddingProvider as embeddingProvider };

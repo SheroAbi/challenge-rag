@@ -4,23 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  TRANSFORMERS_JS_NODE_TYPE = "web"
   NEXT_TELEMETRY_DISABLED = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-[functions]
-  included_files = [
-    "node_modules/onnxruntime-web/**",
-    "node_modules/onnxruntime-common/**",
-    "node_modules/@xenova/transformers/dist/*.wasm",
-    "node_modules/@xenova/transformers/dist/*.mjs"
-  ]
-  node_bundler = "esbuild"
-  external_node_modules = [
-    "@xenova/transformers",
-    "onnxruntime-web",
-    "onnxruntime-node",
-    "onnxruntime-common"
-  ]

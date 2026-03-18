@@ -37,13 +37,15 @@ export interface RetrieverOutput {
 
 // ────────────────── Implementation ──────────────────
 
-// Lazy-load the embedding provider to avoid crashing serverless functions
-// (@xenova/transformers needs native ONNX binaries not available on Netlify Lambda)
+// Remote embedding provider – calls Supabase Edge Function instead of loading
+// @xenova/transformers locally (ONNX binaries are not available on Netlify Lambda)
+import { RemoteEmbeddingProvider } from "@/server/ai/providers/remote-embedding-provider";
+
 let _embeddingProvider: EmbeddingProvider | null = null;
-async function getEmbeddingProvider(): Promise<EmbeddingProvider> {
-  if (_embeddingProvider) return _embeddingProvider;
-  const { LocalEmbeddingProvider } = await import("@/server/ai/providers/local-embedding-provider");
-  _embeddingProvider = new LocalEmbeddingProvider();
+function getEmbeddingProvider(): EmbeddingProvider {
+  if (!_embeddingProvider) {
+    _embeddingProvider = new RemoteEmbeddingProvider();
+  }
   return _embeddingProvider;
 }
 
