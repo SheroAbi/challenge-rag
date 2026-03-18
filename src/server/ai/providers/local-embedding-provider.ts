@@ -3,6 +3,12 @@ import type { EmbeddingProvider as BaseEmbeddingProvider, EmbeddingResult } from
 env.allowLocalModels = false;
 env.useBrowserCache = false;
 
+// Force WASM backend on serverless (no native libonnxruntime.so available)
+if (typeof process !== "undefined" && process.env.NETLIFY === "true") {
+  // @ts-expect-error — onnxruntime backend config
+  env.backends = { onnx: { wasm: {} } };
+}
+
 // ── Eagerly preload the model at module init ──
 // This runs once when Next.js first imports this module,
 // so the model is downloaded and ready before the first upload.

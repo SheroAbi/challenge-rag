@@ -15,6 +15,7 @@ import {
   BookOpen,
   AlertTriangle,
   Lightbulb,
+  ChevronDownIcon,
   Dumbbell,
   Target,
   Zap,
@@ -161,6 +162,8 @@ export default function AnimatedAIChat() {
   const [lightboxAlt, setLightboxAlt] = useState<string>('');
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
   const [lastQuestion, setLastQuestion] = useState<string>('');
+  const [rawErrorDetails, setRawErrorDetails] = useState<string>('');
+  const [showErrorDetails, setShowErrorDetails] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -189,7 +192,9 @@ export default function AnimatedAIChat() {
 
     startTransition(() => {
       setIsTyping(true);
-      setResponse(null); // Clear previous response
+      setResponse(null);
+      setRawErrorDetails('');
+      setShowErrorDetails(false);
     });
 
     try {
@@ -198,15 +203,40 @@ export default function AnimatedAIChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ "question": question, topK, theme }),
       });
-      const data = await res.json();
+
+      const rawText = await res.text();
+
+      // Try to parse as JSON
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        // Server returned non-JSON (e.g. 500 HTML page)
+        setRawErrorDetails(`HTTP ${res.status} ${res.statusText}\n\n${rawText.substring(0, 2000)}`);
+        setResponse({
+          success: false,
+          error: {
+            code: "SERVER_ERROR",
+            message: `Server antwortete mit HTTP ${res.status}.`,
+            hint: "Die Server-Funktion ist abgestürzt. Details unten.",
+          },
+        });
+        return;
+      }
+
+      if (!data.success && data.error) {
+        setRawErrorDetails(JSON.stringify(data, null, 2));
+      }
       setResponse(data);
-    } catch {
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setRawErrorDetails(`Fetch Error: ${errMsg}\n\nURL: /api/chat/query\nTheme: ${theme}\nQuestion: ${question.substring(0, 100)}`);
       setResponse({
         success: false,
         error: {
           code: "NETWORK_ERROR",
           message: "Verbindung zum Server fehlgeschlagen.",
-          hint: "Stelle sicher, dass der Backend-Server läuft.",
+          hint: "Der Server ist nicht erreichbar oder hat einen internen Fehler.",
         },
       });
     } finally {
@@ -501,6 +531,7 @@ export default function AnimatedAIChat() {
                   <h3 className="text-lg font-bold text-foreground">
                     {response.error?.code === 'RATE_LIMIT' && 'Einen Moment bitte…'}
                     {response.error?.code === 'NETWORK_ERROR' && 'Keine Verbindung'}
+                    {response.error?.code === 'SERVER_ERROR' && 'Server-Fehler'}
                     {response.error?.code === 'MODEL_UNAVAILABLE' && 'KI nicht erreichbar'}
                     {response.error?.code === 'CONFIG_ERROR' && 'Konfigurationsproblem'}
                     {response.error?.code === 'DATABASE_ERROR' && 'Datenbankproblem'}
@@ -532,6 +563,35 @@ export default function AnimatedAIChat() {
                     <RefreshCw className="h-4 w-4" />
                     Erneut versuchen
                   </motion.button>
+
+                  {/* Collapsible Technical Details */}
+                  {rawErrorDetails && (
+                    <div className="w-full max-w-lg mt-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowErrorDetails(!showErrorDetails)}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mx-auto"
+                      >
+                        <ChevronDownIcon className={cn("h-3.5 w-3.5 transition-transform duration-200", showErrorDetails && "rotate-180")} />
+                        Technische Details {showErrorDetails ? 'ausblenden' : 'anzeigen'}
+                      </button>
+                      <AnimatePresence>
+                        {showErrorDetails && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="overflow-hidden"
+                          >
+                            <pre className="mt-2 rounded-xl bg-muted/60 border border-border/50 p-4 text-xs text-muted-foreground font-mono overflow-x-auto max-h-60 overflow-y-auto whitespace-pre-wrap break-all">
+                              {rawErrorDetails}
+                            </pre>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ) : (
