@@ -12,7 +12,7 @@
  */
 import type { EmbeddingProvider, EmbeddingResult } from "./embedding-provider";
 
-const EMBEDDING_SERVICE_URL = process.env.EMBEDDING_SERVICE_URL || "http://localhost:3001";
+const EMBEDDING_SERVICE_URL = process.env.EMBEDDING_SERVICE_URL || "https://challenge-rag.onrender.com";
 
 export class RemoteEmbeddingProvider implements EmbeddingProvider {
   readonly name = "remote-xenova:all-MiniLM-L6-v2";
