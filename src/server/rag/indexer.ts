@@ -6,11 +6,19 @@
  */
 
 import { getSupabaseClient } from "@/integrations/supabase/client";
-import { LocalEmbeddingProvider } from "@/server/ai/providers/local-embedding-provider";
+import type { EmbeddingProvider } from "@/server/ai/providers/embedding-provider";
 import type { NormalizedFood } from "@/server/food/normalizer";
 import * as crypto from "crypto";
 
-export const embeddingProvider = new LocalEmbeddingProvider();
+// Lazy-load to avoid crashing Netlify serverless (ONNX native binary not available)
+let _embeddingProvider: EmbeddingProvider | null = null;
+async function getEmbeddingProvider(): Promise<EmbeddingProvider> {
+  if (_embeddingProvider) return _embeddingProvider;
+  const { LocalEmbeddingProvider } = await import("@/server/ai/providers/local-embedding-provider");
+  _embeddingProvider = new LocalEmbeddingProvider();
+  return _embeddingProvider;
+}
+export { _embeddingProvider as embeddingProvider };
 
 const EMBEDDING_BATCH_SIZE = 100;
 const DB_BATCH_SIZE = 100;
@@ -228,7 +236,8 @@ export async function indexFoods(
     onProgress?.(result.indexed, chunks.length, `  ├─ Sende Batch ${batchIndex + 1} (${batch.length} Items) an Embedding...`);
 
     try {
-      const embeddingResult = await embeddingProvider.embed(texts);
+      const ep = await getEmbeddingProvider();
+      const embeddingResult = await ep.embed(texts);
 
       const rows = batch.map((c, j) => ({
         source_id: `food_${c.food.canonicalKey}`,
@@ -305,7 +314,8 @@ export async function indexRecords(
 
     try {
       onProgress?.(result.indexed, datasetRecords.length, `├─ Sende Batch ${Math.floor(i / EMBEDDING_BATCH_SIZE) + 1} (${batch.length} Items) an Embedding...`);
-      const embeddingResult = await embeddingProvider.embed(texts);
+      const ep = await getEmbeddingProvider();
+      const embeddingResult = await ep.embed(texts);
 
       const rows = batch.map((r, j) => ({
         source_id: r.sourceId,

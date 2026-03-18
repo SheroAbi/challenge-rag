@@ -6,7 +6,7 @@
  */
 
 import { getSupabaseClient } from "@/integrations/supabase/client";
-import { LocalEmbeddingProvider } from "@/server/ai/providers/local-embedding-provider";
+import type { EmbeddingProvider } from "@/server/ai/providers/embedding-provider";
 import { getThemeConfig } from "@/server/rag/theme-router";
 import type { ThemeKey } from "@/server/contracts/schemas";
 
@@ -37,7 +37,15 @@ export interface RetrieverOutput {
 
 // ────────────────── Implementation ──────────────────
 
-const embeddingProvider = new LocalEmbeddingProvider();
+// Lazy-load the embedding provider to avoid crashing serverless functions
+// (@xenova/transformers needs native ONNX binaries not available on Netlify Lambda)
+let _embeddingProvider: EmbeddingProvider | null = null;
+async function getEmbeddingProvider(): Promise<EmbeddingProvider> {
+  if (_embeddingProvider) return _embeddingProvider;
+  const { LocalEmbeddingProvider } = await import("@/server/ai/providers/local-embedding-provider");
+  _embeddingProvider = new LocalEmbeddingProvider();
+  return _embeddingProvider;
+}
 
 export class UniversalRetriever {
   readonly name: string;
@@ -59,12 +67,14 @@ export class UniversalRetriever {
         this.semanticSearch(supabase, request),
       ]);
       const merged = this.mergeAndRerank(lexicalResults, semanticResults, request.topK);
-      return { matches: merged, model: embeddingProvider.model, latencyMs: Date.now() - startTime };
+      const ep = await getEmbeddingProvider();
+      return { matches: merged, model: ep.model, latencyMs: Date.now() - startTime };
     }
 
     // Semantic-only für alle anderen Themes
     const hits = await this.semanticSearch(supabase, request);
-    return { matches: hits.slice(0, request.topK), model: embeddingProvider.model, latencyMs: Date.now() - startTime };
+    const ep = await getEmbeddingProvider();
+    return { matches: hits.slice(0, request.topK), model: ep.model, latencyMs: Date.now() - startTime };
   }
 
   // ── Lexikalische Suche (nur Food, Trigram auf food_items) ──
@@ -109,7 +119,8 @@ export class UniversalRetriever {
   ): Promise<RetrievalHit[]> {
     try {
       const themeConfig = getThemeConfig(this.theme);
-      const queryEmbedding = await embeddingProvider.embedSingle(request.query);
+      const ep2 = await getEmbeddingProvider();
+      const queryEmbedding = await ep2.embedSingle(request.query);
 
       console.log(`[Retriever] Theme: ${this.theme}, RPC: ${themeConfig.matchRpc}, Query: "${request.query.substring(0, 50)}...", Embedding dims: ${queryEmbedding.length}`);
 

@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Everlast RAG – Präsentations-Handbuch</title>
+  <style>
+    /* ══════════════════════════════════════════════════════════════
+       DESIGN SYSTEM – Schlicht, abgerundet, keine wilden Farben
+       ══════════════════════════════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f8f7f5;
+      --fg: #1a1a1a;
+      --card: #ffffff;
+      --border: #e5e2dd;
+      --muted: #6b7280;
+      --accent: #92710a;
+      --accent-bg: #fef9ee;
+      --accent-light: #fffdf7;
+      --success: #047857;
+      --success-bg: #ecfdf5;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --info: #1d4ed8;
+      --info-bg: #eff6ff;
+      --radius: 12px;
+      --radius-sm: 7px;
+      --shadow: 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 2px 8px rgba(0,0,0,.06);
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: 'Cascadia Code', 'Consolas', 'Fira Code', monospace;
+      --sidebar-w: 290px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.7;
+      font-size: 14.5px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { padding-left: 20px; }
+    li { margin: 3px 0; }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      border-right: 1px solid var(--border);
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 16px 12px;
+      flex-shrink: 0;
+      scrollbar-width: thin;
+      font-size: 13px;
+    }
+    .sidebar::-webkit-scrollbar { width: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .sidebar .logo { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+    .sidebar .logo-sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+
+    .sidebar .nav-header {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      margin: 16px 0 5px 6px;
+      font-weight: 700;
+    }
+    .sidebar a.nav-link {
+      display: block;
+      padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      color: var(--fg);
+      transition: all .12s;
+      text-decoration: none;
+    }
+    .sidebar a.nav-link:hover { background: var(--accent-bg); color: var(--accent); }
+
+    /* ── File Tree ── */
+    .tree-section { margin-top: 10px; }
+    .tree-item {
+      display: flex;
+      align-items: center;
+      padding: 2px 0 2px 0;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background .1s;
+      user-select: none;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .tree-item:hover { background: var(--accent-bg); }
+    .tree-item .icon { width: 16px; text-align: center; flex-shrink: 0; font-size: 11px; }
+    .tree-item .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tree-folder > .tree-item { font-weight: 600; color: var(--fg); }
+    .tree-file > .tree-item { color: var(--muted); font-weight: 400; }
+    .tree-file > .tree-item:hover { color: var(--accent); }
+    .tree-children { overflow: hidden; transition: max-height .2s ease; }
+    .tree-children.collapsed { max-height: 0 !important; }
+    .tree-indent-1 { padding-left: 12px; }
+    .tree-indent-2 { padding-left: 24px; }
+    .tree-indent-3 { padding-left: 36px; }
+    .tree-indent-4 { padding-left: 48px; }
+    .tree-indent-5 { padding-left: 60px; }
+    .tree-chevron { font-size: 9px; transition: transform .15s; display: inline-block; width: 12px; text-align: center; }
+    .tree-chevron.open { transform: rotate(90deg); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 36px 100px;
+    }
+
+    /* ── Search ── */
+    .search-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      padding: 6px 0 10px;
+      margin-bottom: 10px;
+    }
+    .search-wrap { position: relative; }
+    .search-wrap .s-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 10px 80px 10px 36px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      background: var(--card);
+      outline: none;
+      transition: border .15s, box-shadow .15s;
+      font-family: var(--font);
+      box-shadow: var(--shadow);
+    }
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(146,113,10,.08);
+    }
+    .search-wrap .s-hint {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--bg);
+      padding: 2px 5px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+    .search-count {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    /* ── Filter Chips ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--card);
+      transition: all .12s;
+      user-select: none;
+    }
+    .chip:hover, .chip.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Typography ── */
+    h1 { font-size: 1.9rem; font-weight: 800; margin-bottom: 6px; letter-spacing: -.01em; }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 48px 0 16px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--accent-bg) 0%, var(--card) 100%);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      border-bottom: none;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 28px 0 10px;
+      color: var(--fg);
+      padding: 6px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    p { margin: 5px 0; }
+
+    /* ── Section Grouping ── */
+    section {
+      margin-bottom: 20px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    section:last-child { border-bottom: none; }
+    section > h2:first-child { margin-top: 24px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin: 10px 0;
+      box-shadow: var(--shadow);
+    }
+    .card h4 {
+      font-size: .9rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .tag-ui      { background: #dbeafe; color: #1e40af; }
+    .tag-api     { background: #d1fae5; color: #065f46; }
+    .tag-service { background: #fef3c7; color: #92400e; }
+    .tag-ai      { background: #ede9fe; color: #5b21b6; }
+    .tag-domain  { background: #fce7f3; color: #9d174d; }
+    .tag-db      { background: #e0e7ff; color: #3730a3; }
+    .tag-infra   { background: #f3f4f6; color: #374151; }
+
+    /* ── Code ── */
+    code {
+      font-family: var(--mono);
+      background: #f0ede8;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: .85em;
+    }
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 14px 18px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin: 8px 0;
+      font-family: var(--mono);
+    }
+
+    /* ── Term Explanation ── */
+    .term {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .term-explain {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: .92em;
+    }
+
+    /* ── Details / Expandable ── */
+    details { margin: 6px 0; }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      user-select: none;
+      transition: all .12s;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: '▸ '; color: var(--muted); font-size: 11px; }
+    details[open] summary::before { content: '▾ '; }
+    summary:hover { background: var(--accent-bg); border-color: var(--accent); }
+    details[open] summary {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom-color: transparent;
+    }
+    .detail-body {
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 14px 16px;
+      background: var(--card);
+      font-size: 13px;
+    }
+    .detail-body p { margin: 4px 0; }
+    .detail-body strong { color: var(--accent); }
+    .detail-body ul { margin: 4px 0 4px 16px; }
+    .detail-body li { margin: 2px 0; font-size: 13px; }
+
+    /* Sub-details (nested expandable) */
+    .sub-details { margin: 4px 0 4px 8px; }
+    .sub-details summary {
+      font-size: 12px;
+      padding: 5px 10px;
+      font-weight: 500;
+      background: var(--bg);
+    }
+    .sub-details .detail-body {
+      font-size: 12.5px;
+      background: var(--bg);
+      padding: 10px 14px;
+    }
+
+    /* ── Tables ── */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .tbl th {
+      text-align: left;
+      background: #f0ede8;
+      padding: 8px 12px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .tbl td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .tbl tr:hover td { background: var(--accent-light); }
+
+    /* ── Flow Diagram ── */
+    .flow-box { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 10px 0; }
+    .flow-step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+    .flow-arrow { color: var(--accent); font-size: 16px; font-weight: 700; padding: 0 3px; }
+
+    /* ── Special Cards ── */
+    .qa-card { border-left: 3px solid var(--accent); }
+    .qa-card h4 { color: var(--accent); }
+    .gap-card { border-left: 3px solid var(--danger); }
+    .gap-card h4 { color: var(--danger); }
+    .story-card { border-left: 3px solid var(--info); }
+    .highlight-box {
+      background: var(--accent-bg);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin: 8px 0;
+      font-size: 13.5px;
+    }
+
+    /* ── Search Match ── */
+    mark.search-mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 1px 3px;
+      border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(234,179,8,.3);
+      scroll-margin-top: 80px;
+    }
+    .search-hidden { display: none !important; }
+    @keyframes searchPulse {
+      0%,100% { box-shadow: 0 0 0 2px rgba(234,179,8,.3); }
+      50% { box-shadow: 0 0 0 6px rgba(234,179,8,.15); }
+    }
+    mark.search-first {
+      animation: searchPulse .8s ease 2;
+      background: #fbbf24;
+      font-weight: 600;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { padding: 14px 16px 60px; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      .sidebar, .search-bar, .chips { display: none; }
+      .main { max-width: 100%; padding: 0; }
+      .card { box-shadow: none; break-inside: avoid; }
+      details[open] summary { border-bottom: 1px solid var(--border); border-radius: var(--radius-sm); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="logo">📖 Handbuch</div>
+  <div class="logo-sub">Everlast RAG · Challenge-Präsentation</div>
+
+  <div class="nav-header">Sektionen</div>
+  <a class="nav-link" href="#sec-overview">🎯 Auf einen Blick</a>
+  <a class="nav-link" href="#sec-challenge">📋 Challenge-Mapping</a>
+  <a class="nav-link" href="#sec-story">📖 Umsetzungsstory</a>
+  <a class="nav-link" href="#sec-stack">⚙️ Tech-Stack</a>
+  <a class="nav-link" href="#sec-arch">🏗 Architektur</a>
+  <a class="nav-link" href="#sec-flows">🔄 Flows</a>
+  <a class="nav-link" href="#sec-files">📄 Datei Deep Dive</a>
+  <a class="nav-link" href="#sec-api">🔌 API Contracts</a>
+  <a class="nav-link" href="#sec-db">🗄 Supabase &amp; DB</a>
+  <a class="nav-link" href="#sec-qa">💬 Interview Q&amp;A</a>
+  <a class="nav-link" href="#sec-glossary">📚 Glossar</a>
+  <a class="nav-link" href="#sec-gaps">⚠️ Known Gaps</a>
+
+  <div class="nav-header">Dateibaum</div>
+  <div class="tree-section" id="fileTree">
+    <!-- src/ -->
+    <div class="tree-folder" data-open="true">
+      <div class="tree-item"><span class="tree-chevron open">▶</span><span class="icon">📁</span><span class="label"> src</span></div>
+      <div class="tree-children">
+        <!-- src/app/ -->
+        <div class="tree-folder tree-indent-1" data-open="true">
+          <div class="tree-item"><span class="tree-chevron open">▶</span><span class="icon">📁</span><span class="label"> app</span></div>
+          <div class="tree-children">
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-page"><span class="icon">📄</span><span class="label"> page.tsx</span></div></div>
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-layout"><span class="icon">📄</span><span class="label"> layout.tsx</span></div></div>
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-globals"><span class="icon">📄</span><span class="label"> globals.css</span></div></div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> about</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-about"><span class="icon">📄</span><span class="label"> page.tsx</span></div></div></div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> ask</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-ask"><span class="icon">📄</span><span class="label"> page.tsx</span></div></div></div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> knowledge</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-knowledge"><span class="icon">📄</span><span class="label"> page.tsx</span></div></div></div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> api</span></div>
+              <div class="tree-children collapsed">
+                <div class="tree-folder tree-indent-3" data-open="false">
+                  <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> chat/query</span></div>
+                  <div class="tree-children collapsed"><div class="tree-file tree-indent-4"><div class="tree-item" data-target="#f-api-chat"><span class="icon">📄</span><span class="label"> route.ts</span></div></div></div>
+                </div>
+                <div class="tree-folder tree-indent-3" data-open="false">
+                  <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> health</span></div>
+                  <div class="tree-children collapsed"><div class="tree-file tree-indent-4"><div class="tree-item" data-target="#f-api-health"><span class="icon">📄</span><span class="label"> route.ts</span></div></div></div>
+                </div>
+                <div class="tree-folder tree-indent-3" data-open="false">
+                  <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> rag/retrieve</span></div>
+                  <div class="tree-children collapsed"><div class="tree-file tree-indent-4"><div class="tree-item" data-target="#f-api-retrieve"><span class="icon">📄</span><span class="label"> route.ts</span></div></div></div>
+                </div>
+                <div class="tree-folder tree-indent-3" data-open="false">
+                  <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> knowledge</span></div>
+                  <div class="tree-children collapsed">
+                    <div class="tree-file tree-indent-4"><div class="tree-item" data-target="#f-api-upload"><span class="icon">📄</span><span class="label"> upload/route.ts</span></div></div>
+                    <div class="tree-file tree-indent-4"><div class="tree-item" data-target="#f-api-stats"><span class="icon">📄</span><span class="label"> stats/route.ts</span></div></div>
+                    <div class="tree-file tree-indent-4"><div class="tree-item" data-target="#f-api-tables"><span class="icon">📄</span><span class="label"> tables/route.ts</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- src/components/ -->
+        <div class="tree-folder tree-indent-1" data-open="false">
+          <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> components</span></div>
+          <div class="tree-children collapsed">
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-chat"><span class="icon">📄</span><span class="label"> animated-ai-chat.tsx</span></div></div>
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-upload"><span class="icon">📄</span><span class="label"> rag-upload-modal.tsx</span></div></div>
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-themeprov"><span class="icon">📄</span><span class="label"> theme-provider.tsx</span></div></div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> shell</span></div>
+              <div class="tree-children collapsed">
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-shell"><span class="icon">📄</span><span class="label"> app-shell.tsx</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-sidebar"><span class="icon">📄</span><span class="label"> app-sidebar.tsx</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-toggle"><span class="icon">📄</span><span class="label"> theme-toggle.tsx</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- src/integrations/ -->
+        <div class="tree-folder tree-indent-1" data-open="false">
+          <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> integrations/supabase</span></div>
+          <div class="tree-children collapsed"><div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-supa"><span class="icon">📄</span><span class="label"> client.ts</span></div></div></div>
+        </div>
+        <!-- src/lib/ -->
+        <div class="tree-folder tree-indent-1" data-open="false">
+          <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> lib</span></div>
+          <div class="tree-children collapsed">
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-errors"><span class="icon">📄</span><span class="label"> errors.ts</span></div></div>
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-utils"><span class="icon">📄</span><span class="label"> utils.ts</span></div></div>
+            <div class="tree-file tree-indent-2"><div class="tree-item" data-target="#f-apitypes"><span class="icon">📄</span><span class="label"> types/api.ts</span></div></div>
+          </div>
+        </div>
+        <!-- src/server/ -->
+        <div class="tree-folder tree-indent-1" data-open="false">
+          <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> server</span></div>
+          <div class="tree-children collapsed">
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> ai/config</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-gemcfg"><span class="icon">📄</span><span class="label"> gemini-config.ts</span></div></div></div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> ai/providers</span></div>
+              <div class="tree-children collapsed">
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-ansgen"><span class="icon">📄</span><span class="label"> answer-generator.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-embprov"><span class="icon">📄</span><span class="label"> embedding-provider.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-gemgen"><span class="icon">📄</span><span class="label"> gemini-answer-gen.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-localemb"><span class="icon">📄</span><span class="label"> local-embedding.ts</span></div></div>
+              </div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> contracts</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-schemas"><span class="icon">📄</span><span class="label"> schemas.ts</span></div></div></div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> domain</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-domtypes"><span class="icon">📄</span><span class="label"> types.ts</span></div></div></div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> food</span></div>
+              <div class="tree-children collapsed">
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-normalizer"><span class="icon">📄</span><span class="label"> normalizer.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-mfp"><span class="icon">📄</span><span class="label"> parsers/mfp-tsv-parser.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-foodtypes"><span class="icon">📄</span><span class="label"> parsers/types.ts</span></div></div>
+              </div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> rag</span></div>
+              <div class="tree-children collapsed">
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-indexer"><span class="icon">📄</span><span class="label"> indexer.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-parser"><span class="icon">📄</span><span class="label"> parser.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-retriever"><span class="icon">📄</span><span class="label"> retriever.ts</span></div></div>
+                <div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-themerouter"><span class="icon">📄</span><span class="label"> theme-router.ts</span></div></div>
+              </div>
+            </div>
+            <div class="tree-folder tree-indent-2" data-open="false">
+              <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> services</span></div>
+              <div class="tree-children collapsed"><div class="tree-file tree-indent-3"><div class="tree-item" data-target="#f-orchestrator"><span class="icon">📄</span><span class="label"> rag-orchestrator.ts</span></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- supabase/ -->
+    <div class="tree-folder" data-open="false">
+      <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> supabase/migrations</span></div>
+      <div class="tree-children collapsed">
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-mig1"><span class="icon">📄</span><span class="label"> 001_initial_schema.sql</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-mig2"><span class="icon">📄</span><span class="label"> 002_theme_rag_tables.sql</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-mig3"><span class="icon">📄</span><span class="label"> 003_food_pipeline.sql</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-mig4"><span class="icon">📄</span><span class="label"> 004_saas_exercises_hnsw.sql</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-mig5"><span class="icon">📄</span><span class="label"> 005_remove_workspace_id.sql</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-mig6"><span class="icon">📄</span><span class="label"> 006_runtime_alignment.sql</span></div></div>
+      </div>
+    </div>
+    <!-- Root -->
+    <div class="tree-folder" data-open="false">
+      <div class="tree-item"><span class="tree-chevron">▶</span><span class="icon">📁</span><span class="label"> Root-Konfig</span></div>
+      <div class="tree-children collapsed">
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-pkg"><span class="icon">📄</span><span class="label"> package.json</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-tsconfig"><span class="icon">📄</span><span class="label"> tsconfig.json</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-nextcfg"><span class="icon">📄</span><span class="label"> next.config.ts</span></div></div>
+        <div class="tree-file tree-indent-1"><div class="tree-item" data-target="#f-readme"><span class="icon">📄</span><span class="label"> README.md</span></div></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════ MAIN ═══════════════════════════ -->
+<div class="main" id="mainContent">
+  <div class="search-bar">
+    <div class="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Suche: Dateiname, Funktion, Fachbegriff, Interview-Frage...">
+      <span class="s-hint">/ Focus · Esc Clear</span>
+    </div>
+    <div class="search-count" id="searchCount"></div>
+  </div>
+  <div class="chips" id="chips">
+    <span class="chip active" data-filter="all">Alle</span>
+    <span class="chip" data-filter="UI">🖼 Frontend</span>
+    <span class="chip" data-filter="API">🔌 API</span>
+    <span class="chip" data-filter="Service">⚙️ Service</span>
+    <span class="chip" data-filter="AI">🤖 AI</span>
+    <span class="chip" data-filter="Domain">📦 Domain</span>
+    <span class="chip" data-filter="DB">🗄 DB</span>
+    <span class="chip" data-filter="Infra">🔧 Infra</span>
+    <span class="chip" data-filter="QA">💬 Interview</span>
+  </div>
+
+  <!-- ═══════════════ SECTION 1: OVERVIEW ═══════════════ -->
+  <section id="sec-overview" data-layer="all">
+    <h1>Everlast RAG – Präsentations-Handbuch</h1>
+    <p style="color:var(--muted);margin-bottom:18px">Alles was du brauchst um das Projekt zu präsentieren, erklären und Fragen zu beantworten.</p>
+
+    <div class="highlight-box">
+      <strong>Was ist dieses Projekt?</strong> Eine <span class="term">RAG-Anwendung</span> <span class="term-explain">(Retrieval-Augmented Generation – ein System das erst relevante Dokumente sucht und dann eine KI-Antwort daraus generiert)</span>. Der User stellt eine Frage → die App sucht in der Datenbank nach passenden Inhalten → schickt diese als Kontext an Google Gemini → bekommt eine fundierte Antwort mit Quellenangaben zurück.
+    </div>
+
+    <h3>Flow in 20 Sekunden erklärt</h3>
+    <div class="flow-box">
+      <div class="flow-step">User tippt Frage</div><span class="flow-arrow">→</span>
+      <div class="flow-step">Lokales Embedding<br><small>(Text → 384 Zahlen)</small></div><span class="flow-arrow">→</span>
+      <div class="flow-step">Supabase Vektorsuche<br><small>(ähnlichste Chunks)</small></div><span class="flow-arrow">→</span>
+      <div class="flow-step">Kontext bauen</div><span class="flow-arrow">→</span>
+      <div class="flow-step">Gemini API<br><small>(Antwort generieren)</small></div><span class="flow-arrow">→</span>
+      <div class="flow-step">Antwort + Quellen<br><small>(im Chat anzeigen)</small></div>
+    </div>
+
+    <div class="card">
+      <h4>📊 Projekt-Kennzahlen</h4>
+      <table class="tbl">
+        <tr><td><strong>Source-Dateien</strong></td><td>38 Dateien in <code>src/</code></td></tr>
+        <tr><td><strong>API-Endpunkte</strong></td><td>6 Routes (Chat, Retrieve, Upload, Stats, Tables, Health)</td></tr>
+        <tr><td><strong>Daten-Themes</strong></td><td>3 (Food, SaaS Docs, Exercises)</td></tr>
+        <tr><td><strong>DB-Migrationen</strong></td><td>6 SQL-Dateien</td></tr>
+        <tr><td><strong>Embedding-Modell</strong></td><td>all-MiniLM-L6-v2 (384d, lokal via Xenova)</td></tr>
+        <tr><td><strong>LLM</strong></td><td>Google Gemini 2.0 Flash (REST API)</td></tr>
+        <tr><td><strong>Framework</strong></td><td>Next.js 16 + React 19 + TypeScript strict</td></tr>
+        <tr><td><strong>Datenbank</strong></td><td>Supabase (PostgreSQL + pgvector + pg_trgm)</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SECTION 2: CHALLENGE MAPPING ═══════════════ -->
+  <section id="sec-challenge" data-layer="all">
+    <h2>📋 Challenge-Anforderungen → Umsetzung</h2>
+    <table class="tbl">
+      <thead><tr><th>Anforderung</th><th>Umsetzung</th><th>Wo im Code?</th></tr></thead>
+      <tbody>
+        <tr><td>RAG-System mit Supabase</td><td>Vollständige Pipeline: Embedding → pgvector → Gemini</td><td><code>rag-orchestrator.ts</code>, <code>retriever.ts</code></td></tr>
+        <tr><td>Daten einlesen &amp; indexieren</td><td>Multi-Format-Parser (JSON/JSONL/CSV/TSV) + Batch-Embedding + Upsert</td><td><code>parser.ts</code>, <code>indexer.ts</code></td></tr>
+        <tr><td>Chat-Interface</td><td>React-Chat mit Markdown-Rendering, Quellen-Cards, Theme-Wahl</td><td><code>animated-ai-chat.tsx</code></td></tr>
+        <tr><td>Mehrere Datenquellen</td><td>3 Themes (food, saas_docs, exercises) mit eigenen Tabellen + RPCs</td><td><code>theme-router.ts</code>, Migrationen</td></tr>
+        <tr><td>UI/UX Design</td><td>Dark/Light Mode, responsive Sidebar, Framer Motion Animationen</td><td><code>globals.css</code>, <code>app-shell.tsx</code></td></tr>
+        <tr><td>Upload-Funktionalität</td><td>Drag&amp;Drop Upload mit SSE-Streaming-Fortschritt</td><td><code>rag-upload-modal.tsx</code>, <code>upload/route.ts</code></td></tr>
+        <tr><td>Knowledge-Dashboard</td><td>Live-Statistiken, Tabellen-Übersicht, Import-History</td><td><code>knowledge/page.tsx</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════ SECTION 3: STORY ═══════════════ -->
+  <section id="sec-story" data-layer="all">
+    <h2>📖 Umsetzungsstory – Wie ich vorgegangen bin</h2>
+
+    <details>
+      <summary>Phase 1: Grundgerüst aufsetzen</summary>
+      <div class="detail-body">
+        <p>Next.js 16 mit App Router initialisiert. Supabase-Projekt angelegt. Erste Migration: <code>001_initial_schema.sql</code> mit pgvector-Extension, Basis-Tabellen. Seitenstruktur: Landing (/), About (/about), Knowledge (/knowledge). Layout mit Sidebar-Navigation, Dark/Light-Toggle.</p>
+        <details class="sub-details">
+          <summary>Technische Details</summary>
+          <div class="detail-body">
+            <ul>
+              <li><span class="term">App Router</span> <span class="term-explain">(Next.js Dateibasiertes Routing – jeder Ordner mit <code>page.tsx</code> wird automatisch eine URL)</span></li>
+              <li><span class="term">pgvector Extension</span> <span class="term-explain">(PostgreSQL-Erweiterung die Vektoren speichern und Ähnlichkeitssuche kann)</span></li>
+              <li>Fonts: Manrope (Headlines), IBM Plex Mono (Code) via <code>next/font/google</code></li>
+              <li>CSS Design-System mit <code>oklch()</code> Farbpalette für 40+ Custom Properties</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 2: Embedding-Versuch mit Google Gemini</summary>
+      <div class="detail-body">
+        <p>Zuerst Google Gemini <code>text-embedding-004</code> als Cloud-Embedding-Dienst angebunden. Problem: <strong>429-Fehler (Quota-Limits)</strong> bei Batch-Verarbeitung vieler Dokumente, Timeouts bei großen Uploads. Obwohl ich dafür zahle, war die Zuverlässigkeit nicht gegeben.</p>
+        <details class="sub-details">
+          <summary>Warum Cloud-Embeddings Probleme machten</summary>
+          <div class="detail-body">
+            <ul>
+              <li><span class="term">429 Too Many Requests</span> <span class="term-explain">(Server sagt: du sendest zu viele Anfragen pro Sekunde)</span></li>
+              <li>Jeder Batch von 100 Texten = 100 API-Calls → bei 5000 Lebensmitteln = 50 Batches = häufige Rate-Limit-Hits</li>
+              <li>Alternative: Batch-Endpoint → aber auch mit Limits und kein Streaming</li>
+              <li>Ergebnis: Upload bricht nach ~30% ab → unbrauchbar für Demos</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 3: Kurskorrektur → Lokale Embeddings mit Xenova</summary>
+      <div class="detail-body">
+        <p><strong>Lösung:</strong> <code>@xenova/transformers</code> mit <code>all-MiniLM-L6-v2</code>. Läuft komplett lokal auf der CPU, braucht keinen API-Key, hat keine Rate-Limits. Cold Start 2-5s (Modell laden), danach schnell.</p>
+        <table class="tbl">
+          <tr><th></th><th>Google Gemini Embedding</th><th>Xenova Lokal</th></tr>
+          <tr><td>Dimensionen</td><td>768</td><td>384</td></tr>
+          <tr><td>Kosten</td><td>Pay-per-Use</td><td>Kostenlos</td></tr>
+          <tr><td>Rate Limits</td><td>Ja (429-Fehler)</td><td>Keine</td></tr>
+          <tr><td>Latenz</td><td>~100-300ms/Text (Netzwerk)</td><td>~20-50ms/Text (CPU)</td></tr>
+          <tr><td>Offline?</td><td>Nein</td><td>Ja (nach erstem Download)</td></tr>
+          <tr><td>Qualität</td><td>Sehr gut</td><td>Gut genug für Retrieval</td></tr>
+        </table>
+        <details class="sub-details">
+          <summary>Wie lokale Embeddings funktionieren</summary>
+          <div class="detail-body">
+            <ul>
+              <li><span class="term">Transformer-Modell</span> <span class="term-explain">(neuronales Netz das Text in einen Zahlenvektor umwandelt – "versteht" die Bedeutung)</span></li>
+              <li><span class="term">Mean Pooling + Normalisierung</span> <span class="term-explain">(Alle Token-Vektoren werden gemittelt und auf Einheitslänge gebracht – Standard für Ähnlichkeitsvergleich)</span></li>
+              <li>Modell wird beim Server-Start heruntergeladen (~22 MB), dann gecached</li>
+              <li><code>preloadModel()</code> auf Modulebene → <span class="term">Eager Initialization</span> <span class="term-explain">(Modell wird sofort beim Import geladen, nicht erst beim ersten Aufruf)</span></li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 4: Multi-Theme + Hybrid-Retrieval</summary>
+      <div class="detail-body">
+        <p>Theme-System eingeführt: jedes Thema (food, saas_docs, exercises) bekommt eigene DB-Tabelle + RPC + Prompt-Hints. Food zusätzlich: <span class="term">Hybrid-Retrieval</span> <span class="term-explain">(zwei Suchstrategien gleichzeitig: Textsuche UND Vektorsuche, Ergebnisse zusammenführen für bessere Trefferquote)</span>.</p>
+        <details class="sub-details">
+          <summary>Hybrid vs. Semantic Retrieval</summary>
+          <div class="detail-body">
+            <ul>
+              <li><strong>Semantic-only</strong> (SaaS, Exercises): Frage → Embedding → pgvector Cosine Distance → Top-K Treffer</li>
+              <li><strong>Hybrid</strong> (Food): <code>Promise.all(lexical, semantic)</code> parallel → <code>mergeAndRerank()</code></li>
+              <li><span class="term">Lexical Search</span> <span class="term-explain">(Textbasierte Suche mit <code>pg_trgm</code> – findet auch Tippfehler und Teilwörter wie "Hähnch" → "Hähnchenbrust")</span></li>
+              <li>Beide Ergebnisse werden dedupliziert und nach Score sortiert</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <details>
+      <summary>Phase 5: Upload-Pipeline + Knowledge Dashboard</summary>
+      <div class="detail-body">
+        <p>SSE-basierter Upload mit Echtzeit-Fortschritt. Zwei Pfade: Food-TSV (spezieller MFP-Parser) und Universal (JSON/JSONL/CSV/TSV). Knowledge-Dashboard mit Live-Stats aus Supabase.</p>
+        <details class="sub-details">
+          <summary>SSE-Streaming erklärt</summary>
+          <div class="detail-body">
+            <ul>
+              <li><span class="term">SSE (Server-Sent Events)</span> <span class="term-explain">(Einweg-Datenstrom vom Server zum Browser – Server schickt laufend Updates, Browser muss nur zuhören)</span></li>
+              <li>Events: <code>init</code> → <code>parsing</code> → <code>embedding_progress</code> (X/Y) → <code>indexing</code> → <code>complete</code></li>
+              <li>Im Browser: <code>ReadableStream</code> liest den Datenstrom und parsed <code>data:</code> Zeilen</li>
+              <li>Vorteil gegenüber WebSocket: einfacher, läuft durch Proxies, HTTP/2 kompatibel</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═══════════════ SECTION 4: TECH STACK ═══════════════ -->
+  <section id="sec-stack" data-layer="all">
+    <h2>⚙️ Tech-Stack</h2>
+    <table class="tbl">
+      <thead><tr><th>Technologie</th><th>Version</th><th>Zweck</th><th>Normal gesagt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Next.js</strong></td><td>16.1.6</td><td><span class="term">Full-Stack React Framework</span></td><td><span class="term-explain">Baut Frontend und Backend in einem Projekt – Seiten + API-Endpunkte</span></td></tr>
+        <tr><td><strong>React</strong></td><td>19.2.3</td><td><span class="term">UI-Bibliothek</span></td><td><span class="term-explain">Baut die Benutzeroberfläche aus wiederverwendbaren Bausteinen (Komponenten)</span></td></tr>
+        <tr><td><strong>TypeScript</strong></td><td>5.x</td><td><span class="term">Typisiertes JavaScript</span></td><td><span class="term-explain">JavaScript mit Typprüfung – findet Fehler bevor das Programm läuft</span></td></tr>
+        <tr><td><strong>Supabase</strong></td><td>2.x</td><td><span class="term">Backend-as-a-Service</span></td><td><span class="term-explain">PostgreSQL-Datenbank mit eingebautem Auth, API und Vektorspeicher</span></td></tr>
+        <tr><td><strong>pgvector</strong></td><td>0.7.x</td><td><span class="term">Vektor-Extension</span></td><td><span class="term-explain">Macht aus PostgreSQL eine Vektordatenbank für Ähnlichkeitssuche</span></td></tr>
+        <tr><td><strong>@xenova/transformers</strong></td><td>2.x</td><td><span class="term">Lokales ML-Modell</span></td><td><span class="term-explain">Führt KI-Modelle direkt auf dem eigenen Rechner aus statt in der Cloud</span></td></tr>
+        <tr><td><strong>Google Gemini</strong></td><td>2.0 Flash</td><td><span class="term">LLM API</span></td><td><span class="term-explain">Googles Sprach-KI die Fragen beantwortet basierend auf dem Kontext</span></td></tr>
+        <tr><td><strong>Zod</strong></td><td>4.x</td><td><span class="term">Schema-Validierung</span></td><td><span class="term-explain">Prüft ob API-Eingaben das richtige Format haben zur Laufzeit</span></td></tr>
+        <tr><td><strong>Framer Motion</strong></td><td>12.x</td><td><span class="term">Animations-Bibliothek</span></td><td><span class="term-explain">Flüssige Ein-/Ausblend-Animationen für React-Komponenten</span></td></tr>
+        <tr><td><strong>Tailwind CSS</strong></td><td>4.x</td><td><span class="term">Utility-First CSS</span></td><td><span class="term-explain">CSS-Klassen direkt im HTML statt separate Stylesheets</span></td></tr>
+        <tr><td><strong>react-markdown</strong></td><td>9.x</td><td><span class="term">Markdown Renderer</span></td><td><span class="term-explain">Wandelt Markdown-Text in formatiertes HTML um – für KI-Antworten</span></td></tr>
+        <tr><td><strong>next-themes</strong></td><td>0.4.x</td><td><span class="term">Theme Management</span></td><td><span class="term-explain">Verwaltet Dark/Light Mode automatisch mit LocalStorage</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════ SECTION 5: ARCHITECTURE ═══════════════ -->
+  <section id="sec-arch" data-layer="all">
+    <h2>🏗 Architektur – Layer-Übersicht</h2>
+
+    <pre>
+┌─────────────────────────────────────────────────────────────┐
+│  🖼  UI LAYER  (React Komponenten)                          │
+│  page.tsx · animated-ai-chat.tsx · rag-upload-modal.tsx     │
+│  knowledge/page.tsx · app-shell.tsx · app-sidebar.tsx       │
+├─────────────────────────────────────────────────────────────┤
+│  🔌  API LAYER  (Next.js Route Handlers)                    │
+│  /api/chat/query · /api/rag/retrieve · /api/health          │
+│  /api/knowledge/upload · /api/knowledge/stats · /tables     │
+├─────────────────────────────────────────────────────────────┤
+│  ⚙️  SERVICE LAYER  (Business-Logik)                        │
+│  rag-orchestrator.ts · retriever.ts · indexer.ts            │
+│  parser.ts · theme-router.ts                                │
+├─────────────────────────────────────────────────────────────┤
+│  🤖  AI LAYER  (Provider-Pattern)                           │
+│  local-embedding-provider.ts · gemini-answer-generator.ts   │
+│  answer-generator.ts (Interface) · embedding-provider.ts    │
+├─────────────────────────────────────────────────────────────┤
+│  📦  DOMAIN LAYER  (Fachlogik)                              │
+│  normalizer.ts · mfp-tsv-parser.ts · schemas.ts · types.ts │
+├─────────────────────────────────────────────────────────────┤
+│  🗄  DB LAYER  (Supabase + pgvector + pg_trgm)              │
+│  6 Migrationen · RPCs · HNSW-Indizes · food_items           │
+└─────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <details>
+      <summary>Warum diese Schichtung?</summary>
+      <div class="detail-body">
+        <ul>
+          <li><span class="term">Separation of Concerns</span> <span class="term-explain">(Jede Schicht hat genau eine Aufgabe – UI kümmert sich um Darstellung, Service um Logik, AI um Modelle)</span></li>
+          <li><span class="term">Provider Pattern</span> <span class="term-explain">(Interface + Implementierung getrennt – man kann den Embedding-Anbieter austauschen ohne den Rest zu ändern)</span></li>
+          <li><span class="term">Single Responsibility</span> <span class="term-explain">(Jede Datei macht genau eine Sache – z.B. <code>parser.ts</code> parsed nur, <code>indexer.ts</code> indexiert nur)</span></li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═══════════════ SECTION 6: FLOWS ═══════════════ -->
+  <section id="sec-flows" data-layer="all">
+    <h2>🔄 End-to-End Flows</h2>
+
+    <details>
+      <summary>Flow 1: User stellt eine Frage (Chat Query)</summary>
+      <div class="detail-body">
+        <ol>
+          <li><strong>Frontend</strong> (<code>animated-ai-chat.tsx</code>): User tippt Frage, wählt Theme (z.B. "food"), klickt Senden</li>
+          <li><strong>API</strong> (<code>/api/chat/query</code>): <code>POST</code> mit <code>{question, theme, topK}</code> → Zod-Validierung → <code>ragOrchestrator.query()</code></li>
+          <li><strong>Orchestrator</strong> (<code>rag-orchestrator.ts</code>): Entscheidet Retrieval-Strategie basierend auf Theme</li>
+          <li><strong>Retriever</strong> (<code>retriever.ts</code>): <span class="term">Embedding</span> der Frage → Supabase RPC <code>match_rag_*_chunks</code> → Top-K Treffer</li>
+          <li><strong>Kontext</strong>: Treffer → <code>contextChunks[]</code> mit content, documentTitle, chunkId</li>
+          <li><strong>Generator</strong> (<code>gemini-answer-generator.ts</code>): System-Prompt + Kontext + Frage → Gemini REST API → Antwort</li>
+          <li><strong>Response</strong>: <code>{answer, citations[], resultTable, latencyMs, model}</code> → Frontend rendert Markdown + Quellen-Cards</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Flow 2: Datei-Upload (SSE Streaming)</summary>
+      <div class="detail-body">
+        <ol>
+          <li><strong>Frontend</strong> (<code>rag-upload-modal.tsx</code>): Drag&amp;Drop Datei → Tabelle auswählen → Upload-Button</li>
+          <li><strong>API</strong> (<code>/api/knowledge/upload</code>): FormData empfangen → <code>import_runs</code> anlegen → SSE-Stream starten</li>
+          <li><strong>Parser</strong> (<code>parser.ts</code>): Format erkennen (JSON/JSONL/CSV/TSV) → Zeilen/Records parsen → Typisierung</li>
+          <li><strong>Indexer</strong> (<code>indexer.ts</code>): Batch-Embedding (100er-Batches) → Upsert in DB-Tabelle</li>
+          <li><strong>SSE-Events</strong>: <code>init → parsing → embedding_progress (34/100) → indexing → complete</code></li>
+          <li><strong>Frontend</strong>: ReadableStream parsed SSE-Events → Progressbar + Terminal-Log + Stats</li>
+        </ol>
+      </div>
+    </details>
+
+    <details>
+      <summary>Flow 3: Neues Theme hinzufügen (Erweiterbarkeit)</summary>
+      <div class="detail-body">
+        <ol>
+          <li><strong>SQL-Migration:</strong> Neue Tabelle <code>rag_NEW_chunks</code> + <code>match_rag_NEW_chunks</code> RPC + HNSW-Index</li>
+          <li><strong>Theme-Registry:</strong> In <code>theme-router.ts</code> neuen Eintrag: <code>{ tableName, matchRpc, promptHint, emptyState }</code></li>
+          <li><strong>Zod-Schema:</strong> In <code>schemas.ts</code> den <code>themeKeySchema</code> um den neuen Key erweitern</li>
+          <li><strong>Fertig!</strong> Upload, Retrieval und Chat funktionieren automatisch über die bestehende Pipeline</li>
+        </ol>
+        <p style="color:var(--success);font-weight:600">→ ~20 Zeilen Code + 1 SQL-Migration für ein neues Theme. Das zeigt die Erweiterbarkeit.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═══════════════ SECTION 7: FILE DEEP DIVE ═══════════════ -->
+  <section id="sec-files" data-layer="all">
+    <h2>📄 Datei-für-Datei Deep Dive</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:18px">Jede Datei: Wofür, Exports, Imports, Kernlogik. Aufklappen für Code-Level-Details mit Fachbegriff + (Alltagserklärung).</p>
+
+    <!-- ═══ FRONTEND PAGES ═══ -->
+    <h3 data-layer="UI">🖼 Frontend – Seiten</h3>
+
+    <div class="card" id="f-page" data-layer="UI">
+      <h4><code>src/app/page.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Startseite (Landing Page)</strong> – Hero-Bereich mit Gradient-Hintergrund, Badge "Recruiting-Challenge", und die eingebettete <code>AnimatedAIChat</code>-Komponente als zentrale Interaktion.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <p><strong>Exports:</strong> <code>LandingPage</code> – <span class="term">Default Export</span> <span class="term-explain">(die Hauptfunktion die Next.js automatisch als Seite lädt)</span></p>
+        <p><strong>Importiert:</strong> <code>AnimatedAIChat</code> aus <code>@/components</code></p>
+        <p><strong>Kernlogik:</strong> Rein darstellend – rendert Hero-Section mit Tailwind-Gradient, importiert Chat-Komponente als zentrales Feature. Kein eigener State, keine API-Calls.</p>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-layout" data-layer="UI">
+      <h4><code>src/app/layout.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Root-Layout</strong> – Bindet Google Fonts, ThemeProvider und AppShell ein. Setzt <code>lang="de"</code> und <span class="term">Metadata</span> <span class="term-explain">(SEO-Daten wie Titel und Beschreibung für Suchmaschinen)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <p><strong>Exports:</strong> <code>RootLayout</code>, <code>metadata</code> (SEO-Objekt mit title, description)</p>
+        <p><strong>Importiert:</strong> <code>Manrope</code> + <code>IBM_Plex_Mono</code> via <code>next/font/google</code>, <code>ThemeProvider</code>, <code>AppShell</code>, <code>globals.css</code></p>
+        <ul>
+          <li><code>const manrope = Manrope({ subsets: ['latin'], variable: '--font-sans' })</code> – <span class="term">Variable Font</span> <span class="term-explain">(Font wird als CSS-Variable geladen damit es überall verfügbar ist)</span></li>
+          <li>Layout-Hierarchie: <code>&lt;html&gt;</code> → <code>&lt;body&gt;</code> → <code>ThemeProvider</code> → <code>AppShell</code> → <code>{children}</code></li>
+          <li><span class="term">ThemeProvider</span> <span class="term-explain">(Verwaltet Dark/Light Mode global für alle Komponenten)</span> wrapped alles</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-globals" data-layer="UI">
+      <h4><code>src/app/globals.css</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Globales Design-System</strong> – <span class="term">CSS Custom Properties</span> <span class="term-explain">(Variablen im CSS die überall wiederverwendet werden wie z.B. Farben, Schatten, Abstände)</span> für Light/Dark Mode mit <code>oklch()</code>-Farbpalette, Tailwind 4 Theme-Tokens, Scrollbar-Customization, Animationen.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>@theme { ... }</code> – Tailwind 4 <span class="term">Theme-Block</span> <span class="term-explain">(definiert alle Design-Tokens für Tailwind: Farben, Schatten, Radien, Fonts)</span></li>
+          <li>40+ <code>oklch()</code> Variablen – <span class="term">oklch()</span> <span class="term-explain">(moderner Farbraum der visuell gleichmäßigere Farben erzeugt als hex/rgb)</span></li>
+          <li>Dark Mode via <code>.dark</code> CSS-Klasse → überschreibt alle Custom Properties</li>
+          <li>5-Stufen Shadow-System: <code>--shadow-xs</code> bis <code>--shadow-xl</code></li>
+          <li>Keyframe-Animation <code>marquee</code> für laufende Textzeilen</li>
+          <li>Scrollbar-Customization für Webkit-Browser</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-about" data-layer="UI">
+      <h4><code>src/app/about/page.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Über-Seite</strong> – Zeigt Tech-Stack als Cards, Umsetzungsstatus-Checkliste und Architektur-Layer-Übersicht. Komplett statisch, keine API-Calls.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>const TECH_STACK = [...]</code> – <span class="term">Statisches Data-Array</span> <span class="term-explain">(fest eingebaute Daten die sich nie ändern und direkt im Code stehen)</span></li>
+          <li><code>const STATUS_ITEMS = [...]</code> – Fortschritts-Items mit <code>status: 'done' | 'in-progress' | 'planned'</code></li>
+          <li><code>const ARCHITECTURE_LAYERS = [...]</code> – 6-Layer Architektur als Karten</li>
+          <li>Lucide Icons: <code>CheckCircle</code>, <code>Circle</code>, <code>AlertTriangle</code> für Status-Visualisierung</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-ask" data-layer="UI">
+      <h4><code>src/app/ask/page.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Redirect</strong> – Leitet <code>/ask</code> sofort auf <code>/</code> weiter. 7 Zeilen. Nutzt Next.js <span class="term"><code>redirect()</code></span> <span class="term-explain">(Server-seitige Weiterleitung bevor die Seite überhaupt gerendert wird)</span>.</p>
+    </div>
+
+    <div class="card" id="f-knowledge" data-layer="UI">
+      <h4><code>src/app/knowledge/page.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Knowledge-Dashboard</strong> – Live-Statistiken aus Supabase (Chunk-Counts, Import-Runs), RAG-Tabellen-Übersicht mit Icons, Upload-Button der das <code>RagUploadModal</code> öffnet.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>"use client"</code> – <span class="term">Client Component</span> <span class="term-explain">(diese Datei wird im Browser ausgeführt, nicht auf dem Server – nötig für useState/useEffect)</span></li>
+          <li><code>useState</code> für: <code>stats</code>, <code>tables</code>, <code>loading</code>, <code>showUpload</code></li>
+          <li><code>useEffect</code> → <code>fetchStats()</code> + <code>fetchTables()</code> parallel beim Seitenaufruf</li>
+          <li><code>useCallback(fetchStats, [])</code> – <span class="term">Memoized Callback</span> <span class="term-explain">(Funktion wird nur einmal erstellt statt bei jedem Render neu – verhindert unnötige Re-Renders)</span></li>
+          <li>API-Calls: <code>/api/knowledge/stats</code> + <code>/api/knowledge/tables</code></li>
+          <li>Graceful Degradation: bei API-Fehler werden Fallback-Werte angezeigt statt Crash</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <!-- ═══ FRONTEND COMPONENTS ═══ -->
+    <h3 data-layer="UI">🖼 Frontend – Komponenten</h3>
+
+    <div class="card" id="f-chat" data-layer="UI">
+      <h4><code>src/components/animated-ai-chat.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Haupt-Chat-Komponente (874 Zeilen)</strong> – Textarea mit Auto-Resize, Theme-Selector-Dropdown, TopK-Wahl, API-Aufruf, Markdown-Rendering mit GFM, Exercise-Cards mit Bild-Lightbox, Quellen-Karten.</p>
+      <details><summary>Code-Level Details aufklappen (größte Datei)</summary><div class="detail-body">
+        <p><strong>Exports:</strong> <code>AnimatedAIChat</code> – <span class="term">Default Export</span></p>
+        <p><strong>Importiert:</strong> <code>themeRegistry</code>, <code>ReactMarkdown</code>, <code>remarkGfm</code>, <code>motion</code> (Framer), <code>AnimatePresence</code>, Lucide Icons</p>
+        <p><strong>Zentrale State-Variablen:</strong></p>
+        <ul>
+          <li><code>const [messages, setMessages] = useState&lt;ChatMessage[]&gt;([])</code> – <span class="term-explain">(Array aller Chat-Nachrichten im Verlauf – "eine Liste die sich verändert")</span></li>
+          <li><code>const [selectedTheme, setSelectedTheme] = useState&lt;ThemeKey&gt;('food')</code> – Aktuell gewähltes Theme</li>
+          <li><code>const [topK, setTopK] = useState(5)</code> – Anzahl der Retrieval-Ergebnisse</li>
+          <li><code>const [isPending, startTransition] = useTransition()</code> – <span class="term">useTransition</span> <span class="term-explain">(React Hook der dafür sorgt dass die UI nicht einfriert während im Hintergrund der API-Call läuft)</span></li>
+          <li><code>const [lightboxUrl, setLightboxUrl] = useState&lt;string|null&gt;(null)</code> – Bild-Lightbox State</li>
+        </ul>
+        <p><strong>Kernfunktionen:</strong></p>
+        <ul>
+          <li><code>handleSend()</code> – <span class="term-explain">(Funktion die aufgerufen wird wenn der User auf Senden klickt)</span>: Frage an <code>/api/chat/query</code> senden, Antwort als neue Message in State speichern</li>
+          <li><code>startTransition(() => ...)</code> – Wrapped den API-Call damit React die UI nicht blockt</li>
+          <li><code>ExerciseCards</code> (inline): Erkennt Übungs-Metadaten und rendert Karten mit Muskelgruppen, Equipment, Level</li>
+          <li>Markdown-Rendering: <code>&lt;ReactMarkdown remarkPlugins={[remarkGfm]} components={customComponents} /&gt;</code></li>
+          <li><span class="term">GFM</span> <span class="term-explain">(GitHub Flavored Markdown – erweitert Markdown um Tabellen, Checkboxen, Durchgestrichenes)</span></li>
+        </ul>
+        <details class="sub-details">
+          <summary>Framer Motion Animationen</summary>
+          <div class="detail-body">
+            <ul>
+              <li><code>&lt;AnimatePresence&gt;</code> – <span class="term-explain">(Verwaltet Ein-/Ausblend-Animationen wenn Elemente erscheinen/verschwinden)</span></li>
+              <li><code>&lt;motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}}&gt;</code> – Jede Chat-Bubble fährt sanft von unten ein</li>
+              <li>Quellen-Karten gleiten einzeln ein mit Delay pro Karte</li>
+            </ul>
+          </div>
+        </details>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-upload" data-layer="UI">
+      <h4><code>src/components/rag-upload-modal.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Upload-Modal (623 Zeilen)</strong> – Drag&amp;Drop-Dateiauswahl, Ziel-Tabellen-Selector (live aus Supabase), SSE-Fortschritt, Terminal-Log.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <p><strong>Stage-Machine:</strong> <code>idle → selected → uploading → processing → complete | error</code></p>
+        <ul>
+          <li><code>const [stage, setStage] = useState&lt;UploadStage&gt;('idle')</code> – <span class="term">State Machine Pattern</span> <span class="term-explain">(die Komponente hat klar definierte Zustände und wechselt zwischen ihnen – wie ein Automat)</span></li>
+          <li><span class="term">Drag&amp;Drop Zone</span>: <code>onDragOver</code>, <code>onDragLeave</code>, <code>onDrop</code> Events → visuelle Feedback-Zone mit Border-Highlight</li>
+          <li><strong>SSE-Parsing:</strong> <code>response.body.getReader()</code> → <code>ReadableStream</code> → <code>TextDecoder</code> → Zeilen splitten → <code>data:</code> Events parsen</li>
+          <li>Pipeline-Visualisierung: Animierte Schritte (Parsen → Format → Embedding → Index)</li>
+          <li>Terminal-Log: <code>&lt;div ref={logRef}&gt;</code> mit Auto-Scroll via <code>scrollIntoView()</code></li>
+          <li>Live-Progressbar: <code>width: ${(processed/total*100)}%</code></li>
+          <li>Statistik am Ende: Records, Indexed, Skipped, Errors als Badges</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-themeprov" data-layer="UI">
+      <h4><code>src/components/theme-provider.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Theme-Provider</strong> – Thin Wrapper um <code>next-themes</code> ThemeProvider mit <code>"use client"</code> Direktive (10 Zeilen). <span class="term-explain">(Wird als Client Component markiert weil next-themes intern Browser-APIs nutzt)</span></p>
+    </div>
+
+    <div class="card" id="f-shell" data-layer="UI">
+      <h4><code>src/components/shell/app-shell.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>App-Shell</strong> – Desktop: <span class="term">Collapsible Sidebar</span> <span class="term-explain">(einklappbare Seitenleiste)</span>. Mobile: Drawer-Overlay mit Framer Motion. <span class="term">Body-Scroll-Lock</span> <span class="term-explain">(wenn der Drawer offen ist kann man den Hintergrund nicht scrollen)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>const [drawerOpen, setDrawerOpen] = useState(false)</code></li>
+          <li><code>const [collapsed, setCollapsed] = useState(false)</code></li>
+          <li><code>const pathname = usePathname()</code> – <span class="term-explain">(React Hook der die aktuelle URL zurückgibt – damit schließt der Drawer automatisch bei Navigation)</span></li>
+          <li><code>useEffect(() => setDrawerOpen(false), [pathname])</code> – Drawer schließt bei Seitenwechsel</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-sidebar" data-layer="UI">
+      <h4><code>src/components/shell/app-sidebar.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Navigations-Sidebar (303 Zeilen)</strong> – Produkt- und App-Navigation, Theme-Toggle, API-Health-Link. Framer Motion Collapse-Animation (Text-Fade, Icon-Zentrierung).</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>const NAV_ITEMS = [...{ title, href, icon }]</code> – <span class="term-explain">(Array mit allen Menü-Einträgen: Titel, URL, Icon-Komponente)</span></li>
+          <li><code>pathname === item.href</code> → <span class="term">Active Link Highlighting</span> <span class="term-explain">(aktueller Menüpunkt wird farblich hervorgehoben)</span></li>
+          <li><code>&lt;motion.span animate={{opacity: collapsed ? 0 : 1}}&gt;</code> – Text blendet aus wenn Sidebar eingeklappt</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-toggle" data-layer="UI">
+      <h4><code>src/components/shell/theme-toggle.tsx</code> <span class="tag tag-ui">UI</span></h4>
+      <p><strong>Dark/Light Toggle</strong> – Button mit Sun/Moon Icons. <span class="term">Mounted-Guard</span> <span class="term-explain">(prüft ob die Komponente schon im Browser geladen ist – verhindert Server/Client-Mismatch bei Dark Mode)</span>. 42 Zeilen.</p>
+    </div>
+
+    <!-- ═══ API ROUTES ═══ -->
+    <h3 data-layer="API">🔌 API – Route Handlers</h3>
+
+    <div class="card" id="f-api-chat" data-layer="API">
+      <h4><code>src/app/api/chat/query/route.ts</code> <span class="tag tag-api">API</span></h4>
+      <p><strong>POST /api/chat/query</strong> – Haupt-Chat-Endpunkt. <span class="term">Zod-Validierung</span> <span class="term-explain">(prüft ob der Request-Body das richtige Format hat bevor er weiterverarbeitet wird)</span> → <code>ragOrchestrator.query()</code> → JSON mit Antwort, Citations, ResultTable, Latenz.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <p><strong>Exports:</strong> <code>export async function POST(request: Request)</code> – <span class="term">Route Handler</span> <span class="term-explain">(Next.js exportiert HTTP-Methode direkt als Funktion – diese Datei handelt POST-Requests)</span></p>
+        <ul>
+          <li><code>const requestId = generateRequestId()</code> – Eindeutige ID für Debugging: <code>req_1710720000_abc123</code></li>
+          <li><code>chatQueryRequestSchema.safeParse(body)</code> – <span class="term">safeParse</span> <span class="term-explain">(validiert ohne Exception zu werfen – gibt <code>{success, data/error}</code> zurück)</span></li>
+          <li><code>const result = await ragOrchestrator.query({...})</code> – Orchestrator aufrufen</li>
+          <li><code>const latencyMs = Date.now() - start</code> – Latenz berechnen</li>
+          <li>Error-Handling: try/catch → <code>apiError()</code> → konsistentes Fehler-JSON</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-api-health" data-layer="API">
+      <h4><code>src/app/api/health/route.ts</code> <span class="tag tag-api">API</span></h4>
+      <p><strong>GET /api/health</strong> – <span class="term">Liveness-Check</span> <span class="term-explain">(Endpunkt der zeigt ob der Server läuft und welche Features aktiv sind)</span>. Gibt Status "ok", Version, Timestamp, Environment und Feature-Flags (<code>supabase</code>, <code>embedding</code>, <code>generation</code>) zurück.</p>
+    </div>
+
+    <div class="card" id="f-api-retrieve" data-layer="API">
+      <h4><code>src/app/api/rag/retrieve/route.ts</code> <span class="tag tag-api">API</span></h4>
+      <p><strong>POST /api/rag/retrieve</strong> – Reiner Retrieval-Endpunkt <strong>ohne</strong> LLM-Generierung. Zod → <code>UniversalRetriever.search()</code> → <code>{matches[], model, latencyMs}</code>. Nützlich für Debugging: zeigt was die Suche findet ohne die KI-Antwort abzuwarten.</p>
+    </div>
+
+    <div class="card" id="f-api-upload" data-layer="API">
+      <h4><code>src/app/api/knowledge/upload/route.ts</code> <span class="tag tag-api">API</span></h4>
+      <p><strong>POST /api/knowledge/upload (360 Zeilen)</strong> – SSE-Streaming-Upload. Zwei Pipelines: Food-TSV (Streaming mit MfpTsvParser) und Universal (JSON/JSONL/CSV/TSV). <span class="term">Import-Run-Tracking</span> <span class="term-explain">(jeder Upload wird in der DB protokolliert mit Status und Statistiken)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>const formData = await request.formData()</code> – <span class="term">FormData</span> <span class="term-explain">(Browser-API um Dateien + Felder zusammen zu senden)</span></li>
+          <li><code>return new Response(new ReadableStream({...}), { headers: {'Content-Type': 'text/event-stream'} })</code> – SSE-Stream</li>
+          <li><code>sendEvent(type, data)</code> – Helper der <code>data: json\n\n</code> an den Stream schreibt</li>
+          <li>Food-Pfad: <code>handleFoodTsvStream()</code> → MfpTsvParser → normalizeRecord → deduplicateFoods → indexFoods</li>
+          <li>Universal-Pfad: <code>handleUniversalImport()</code> → parseDataset → indexRecords</li>
+          <li><code>import_runs</code> → Status: "running" → "completed"/"failed"</li>
+          <li><code>import_errors</code> → Fehler werden geloggt aber Upload bricht nicht ab</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-api-stats" data-layer="API">
+      <h4><code>src/app/api/knowledge/stats/route.ts</code> <span class="tag tag-api">API</span></h4>
+      <p><strong>GET /api/knowledge/stats</strong> – <code>Promise.all()</code> <span class="term-explain">(führt mehrere DB-Abfragen gleichzeitig aus statt nacheinander – schneller)</span> für parallele Count-Abfragen auf food_items, rag_*_chunks, import_runs. Graceful Fallback bei Fehler.</p>
+    </div>
+
+    <div class="card" id="f-api-tables" data-layer="API">
+      <h4><code>src/app/api/knowledge/tables/route.ts</code> <span class="tag tag-api">API</span></h4>
+      <p><strong>GET /api/knowledge/tables</strong> – Dynamische RAG-Tabellen-Erkennung via <code>get_rag_tables()</code> RPC. <span class="term">Triple-Fallback-Strategie</span> <span class="term-explain">(drei Versuche: erst RPC, dann Theme-Registry-Count, dann feste Werte – damit es immer funktioniert)</span>.</p>
+    </div>
+
+    <!-- ═══ SERVER / SERVICE LAYER ═══ -->
+    <h3 data-layer="Service">⚙️ Server – Service Layer</h3>
+
+    <div class="card" id="f-orchestrator" data-layer="Service">
+      <h4><code>src/server/services/rag-orchestrator.ts</code> <span class="tag tag-service">Service</span></h4>
+      <p><strong>RAG-Orchestrator (Herzstück, ~130 Zeilen)</strong> – Koordiniert die gesamte Query-Pipeline: Theme auflösen → Retriever aufrufen → Kontext zusammenbauen → Antwort generieren. <span class="term">Fassaden-Pattern</span> <span class="term-explain">(eine einzelne Schnittstelle die mehrere komplexe Subsysteme vereinfacht – "ein Hauptschalter für alles")</span>.</p>
+      <details><summary>Code-Level Details (Kernstück)</summary><div class="detail-body">
+        <p><strong>Exports:</strong> <code>ragOrchestrator</code> – <span class="term">Singleton-Instanz</span> <span class="term-explain">(es gibt nur ein einziges Orchestrator-Objekt in der gesamten App)</span></p>
+        <ul>
+          <li><code>async query({ question, theme, topK })</code> – Hauptmethode</li>
+          <li><code>const config = themeRouter.resolve(theme)</code> – Theme-Konfiguration holen (Tabelle, RPC, Prompt-Hints)</li>
+          <li><code>const matches = await this.retriever.search(...)</code> – Retrieval ausführen</li>
+          <li><code>const context = this.buildContext(matches)</code> – <span class="term-explain">(Fundstücke in einen Text-Block umwandeln den die KI als Kontext bekommt)</span></li>
+          <li><code>const answer = await this.generator.generate(question, context, config.promptHint)</code></li>
+          <li><code>const citations = this.extractCitations(matches)</code> – Quellen-Metadaten extrahieren</li>
+          <li><span class="term">Dependency Injection</span> <span class="term-explain">(Retriever und Generator werden von außen übergeben statt hart verdrahtet – macht Testen und Austauschen einfacher)</span></li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-retriever" data-layer="Service">
+      <h4><code>src/server/rag/retriever.ts</code> <span class="tag tag-service">Service</span></h4>
+      <p><strong>Universal Retriever (~150 Zeilen)</strong> – Embedding der Frage → Supabase RPC aufrufen → Ergebnisse normalisieren. Unterstützt sowohl <span class="term">Semantic Search</span> <span class="term-explain">(Bedeutungsbasierte Suche mit Vektoren)</span> als auch <span class="term">Hybrid Search</span> <span class="term-explain">(Vektor + Text kombiniert)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>async search(query, config, topK)</code> – Hauptmethode</li>
+          <li><code>const embedding = await this.embeddingProvider.embed(query)</code> – Frage embedden</li>
+          <li><code>const { data } = await supabase.rpc(config.matchRpc, { query_embedding, match_count: topK })</code> – Supabase RPC</li>
+          <li>Hybrid: <code>Promise.all([semanticSearch, lexicalSearch])</code> → <code>mergeAndRerank()</code></li>
+          <li><code>mergeAndRerank(semantic, lexical)</code> – <span class="term-explain">(zwei Ergebnis-Listen zusammenführen: Duplikate entfernen, Scores normalisieren, nach kombiniertem Score sortieren)</span></li>
+          <li>Food-Spezial: Lexical Search via <code>pg_trgm similarity()</code> für Tippfehler-Toleranz</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-indexer" data-layer="Service">
+      <h4><code>src/server/rag/indexer.ts</code> <span class="tag tag-service">Service</span></h4>
+      <p><strong>Universal Indexer (~120 Zeilen)</strong> – Nimmt geparste Records entgegen → <span class="term">Batch-Embedding</span> <span class="term-explain">(Texte in 100er-Gruppen embedden statt einzeln – viel schneller)</span> → <span class="term">Upsert</span> <span class="term-explain">(Update-or-Insert: wenn der Datensatz existiert wird er aktualisiert, sonst neu angelegt)</span> in Supabase.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>async indexRecords(records, tableName, onProgress)</code></li>
+          <li><code>for (let i = 0; i &lt; records.length; i += BATCH_SIZE)</code> – 100er-Batches</li>
+          <li><code>const embeddings = await this.embeddingProvider.embedBatch(texts)</code></li>
+          <li><code>supabase.from(tableName).upsert(rows, { onConflict: 'chunk_id' })</code></li>
+          <li><code>onProgress?.(i + batch.length, records.length)</code> – Callback für SSE-Fortschritt</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-parser" data-layer="Service">
+      <h4><code>src/server/rag/parser.ts</code> <span class="tag tag-service">Service</span></h4>
+      <p><strong>Format-Parser (~90 Zeilen)</strong> – Erkennt Dateiformat anhand Extension → parsed in einheitliches <code>ParsedRecord[]</code> Format. <span class="term">Strategy Pattern</span> <span class="term-explain">(verschiedene Parser-Strategien die das gleiche Ergebnis produzieren – egal ob JSON, CSV oder TSV)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>parseDataset(content, filename)</code> – Hauptfunktion</li>
+          <li>Erkennung: <code>.json</code> → <code>parseJSON()</code>, <code>.jsonl</code> → <code>parseJSONL()</code>, <code>.csv/.tsv</code> → <code>parseDelimited()</code></li>
+          <li><code>parseJSONL(content)</code> – <span class="term-explain">(JSON Lines – eine JSON-Datei pro Zeile, nicht ein großes Array)</span></li>
+          <li>Jeder Record → <code>{ id, content, metadata }</code> normalisiert</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-themerouter" data-layer="Service">
+      <h4><code>src/server/rag/theme-router.ts</code> <span class="tag tag-service">Service</span></h4>
+      <p><strong>Theme-Registry + Router (~80 Zeilen)</strong> – <span class="term">Registry Pattern</span> <span class="term-explain">(zentrale Verwaltung aller Themes als Map – neue Themes einfach registrieren)</span>. Exportiert auch <code>themeRegistry</code> für Frontend.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>const themeConfigs: Record&lt;ThemeKey, ThemeConfig&gt;</code></li>
+          <li>Je Theme: <code>{ tableName, matchRpc, promptHint, emptyState, icon, label }</code></li>
+          <li><code>resolve(theme)</code> → gibt die passende Config zurück oder wirft Error</li>
+          <li><code>themeRegistry = Object.entries(themeConfigs).map(...)</code> → Frontend-Export mit <code>key, label, icon, description</code></li>
+        </ul>
+      </div></details>
+    </div>
+
+    <!-- ═══ AI LAYER ═══ -->
+    <h3 data-layer="AI">🤖 AI – Provider Layer</h3>
+
+    <div class="card" id="f-gemcfg" data-layer="AI">
+      <h4><code>src/server/ai/config/gemini-config.ts</code> <span class="tag tag-ai">AI</span></h4>
+      <p><strong>Gemini-Konfiguration</strong> – Liest Environment-Variables (<code>GEMINI_API_KEY</code>, <code>GEMINI_GENERATION_MODEL</code>), baut REST-URL, validiert Vorhandensein. <span class="term">Fail-Fast</span> <span class="term-explain">(wirft sofort einen Fehler wenn der API-Key fehlt statt erst beim Aufruf – "lieber sofort beschweren als heimlich scheitern")</span>.</p>
+    </div>
+
+    <div class="card" id="f-ansgen" data-layer="AI">
+      <h4><code>src/server/ai/providers/answer-generator.ts</code> <span class="tag tag-ai">AI</span></h4>
+      <p><strong>Interface-Definition</strong> – <span class="term">TypeScript Interface</span> <span class="term-explain">(Vertrag der beschreibt welche Methoden ein Antwort-Generator haben muss – ohne zu sagen WIE)</span>: <code>AnswerGenerator</code> mit <code>generate(question, context, systemHint)</code>. Wird von <code>GeminiAnswerGenerator</code> implementiert.</p>
+    </div>
+
+    <div class="card" id="f-embprov" data-layer="AI">
+      <h4><code>src/server/ai/providers/embedding-provider.ts</code> <span class="tag tag-ai">AI</span></h4>
+      <p><strong>Interface-Definition</strong> – <span class="term">EmbeddingProvider Interface</span> <span class="term-explain">(Vertrag: jeder Embedding-Anbieter muss <code>embed(text)</code> und <code>embedBatch(texts)</code> können)</span>. Ermöglicht Austausch von Xenova gegen Cloud-Provider ohne Code-Änderung im Rest der App.</p>
+    </div>
+
+    <div class="card" id="f-gemgen" data-layer="AI">
+      <h4><code>src/server/ai/providers/gemini-answer-generator.ts</code> <span class="tag tag-ai">AI</span></h4>
+      <p><strong>Gemini LLM Integration (~90 Zeilen)</strong> – REST-Call an <code>generativelanguage.googleapis.com</code>. System-Prompt mit Theme-Hint + Kontext-Chunks + User-Frage → Response JSON parsen → Antwort-Text extrahieren.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>async generate(question, context, systemHint)</code></li>
+          <li>System-Prompt baut: "Du bist ein Experte für [Theme]. Beantworte basierend auf Kontext: [chunks]"</li>
+          <li><code>fetch(url, { method: 'POST', body: JSON.stringify(payload) })</code> – Direkter REST statt SDK</li>
+          <li>Fallback: wenn <code>response.candidates[0]</code> leer → Fehler-Antwort statt Crash</li>
+          <li>Model: <code>gemini-2.0-flash</code> (schnell + günstig für Retrieval-Augmented Antworten)</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-localemb" data-layer="AI">
+      <h4><code>src/server/ai/providers/local-embedding-provider.ts</code> <span class="tag tag-ai">AI</span></h4>
+      <p><strong>Lokaler Embedding-Provider (~100 Zeilen)</strong> – Lädt <code>all-MiniLM-L6-v2</code> via <code>@xenova/transformers</code>, cached das Modell nach erstem Download. <span class="term">Singleton Pipeline</span> <span class="term-explain">(das Modell wird nur einmal geladen und dann für alle Anfragen wiederverwendet)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>let pipeline: Pipeline | null = null</code> – Modul-Level Cache</li>
+          <li><code>async function getPipeline()</code> – <span class="term">Lazy Initialization</span> <span class="term-explain">(Modell wird erst geladen wenn es wirklich gebraucht wird, nicht beim Server-Start)</span></li>
+          <li><code>const output = await pipe(text, { pooling: 'mean', normalize: true })</code></li>
+          <li><span class="term">Mean Pooling</span> <span class="term-explain">(alle Token-Vektoren werden gemittelt zu einem einzigen Vektor)</span></li>
+          <li><span class="term">Normalisierung</span> <span class="term-explain">(Vektor auf Länge 1 bringen damit Cosine-Similarity funktioniert)</span></li>
+          <li><code>embedBatch(texts)</code> → sequentiell, da CPU-basiert keine Batch-Parallelisierung nötig</li>
+          <li>Ergebnis: <code>Float32Array</code> → <code>Array.from()</code> → reguläres <code>number[]</code></li>
+        </ul>
+      </div></details>
+    </div>
+
+    <!-- ═══ DOMAIN LAYER ═══ -->
+    <h3 data-layer="Domain">📦 Domain – Fachlogik</h3>
+
+    <div class="card" id="f-schemas" data-layer="Domain">
+      <h4><code>src/server/contracts/schemas.ts</code> <span class="tag tag-domain">Domain</span></h4>
+      <p><strong>Zod-Schemas (~60 Zeilen)</strong> – Alle API-Input-Schemas zentral definiert. <span class="term">Single Source of Truth</span> <span class="term-explain">(Schemas an einer Stelle definiert, überall verwendet – keine Dopplung)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>themeKeySchema = z.enum(['food', 'saas_docs', 'exercises'])</code></li>
+          <li><code>chatQueryRequestSchema = z.object({ question: z.string().min(1), theme: themeKeySchema, topK: z.number().int().min(1).max(20).default(5) })</code></li>
+          <li><code>retrieveRequestSchema</code> – für /api/rag/retrieve</li>
+          <li><code>export type ThemeKey = z.infer&lt;typeof themeKeySchema&gt;</code> – <span class="term">Type Inference</span> <span class="term-explain">(TypeScript leitet den Typ automatisch vom Schema ab – Schema und Typ sind immer synchron)</span></li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-domtypes" data-layer="Domain">
+      <h4><code>src/server/domain/types.ts</code> <span class="tag tag-domain">Domain</span></h4>
+      <p><strong>Domain-Typen</strong> – TypeScript Interfaces für <code>ThemeConfig</code>, <code>RetrievalMatch</code>, <code>QueryResult</code>, <code>Citation</code>. <span class="term-explain">(Definiert die "Sprache" die alle Schichten gemeinsam sprechen – z.B. wie ein Suchergebnis aussehen muss)</span>.</p>
+    </div>
+
+    <div class="card" id="f-normalizer" data-layer="Domain">
+      <h4><code>src/server/food/normalizer.ts</code> <span class="tag tag-domain">Domain</span></h4>
+      <p><strong>Food Normalizer (~80 Zeilen)</strong> – Bereinigt Lebensmittel-Daten: Einheiten standardisieren, Nährwerte parsen (String → Number), fehlende Felder auffüllen, Sonderfälle bereinigen.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>normalizeRecord(raw)</code> → sauberes <code>NormalizedFoodItem</code></li>
+          <li><code>parseNumericField(value)</code> – <span class="term-explain">(wandelt "123.4g" → 123.4 und "–" → 0 um)</span></li>
+          <li><code>normalizeUnit(unit)</code> – "kcal" → "kcal", "kJ" → Umrechnung</li>
+          <li>Duplikat-Erkennung: gleicher Name + gleiche Portionsgröße → nur ein Eintrag</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-mfp" data-layer="Domain">
+      <h4><code>src/server/food/parsers/mfp-tsv-parser.ts</code> <span class="tag tag-domain">Domain</span></h4>
+      <p><strong>MyFitnessPal TSV-Parser (~100 Zeilen)</strong> – Parsed Tab-separierte Exporte von MyFitnessPal. <span class="term">Streaming Parser</span> <span class="term-explain">(liest Zeile für Zeile statt alles auf einmal – spart Speicher bei großen Dateien)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>parseStream(content, onRecord)</code> – <span class="term">Callback-Pattern</span> <span class="term-explain">(statt alle Records zurückzugeben wird für jeden einzeln eine Funktion aufgerufen)</span></li>
+          <li>Header erkennen: Tab-Split der ersten Zeile → Spaltennamen → Index-Map</li>
+          <li>Felder: Name, Calories, Fat, Carbs, Protein, Serving Size</li>
+          <li><code>buildChunkContent(record)</code> – Baut den Text der embedded wird: "Hähnchenbrust: 165 kcal, 3.6g Fett..."</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-foodtypes" data-layer="Domain">
+      <h4><code>src/server/food/parsers/types.ts</code> <span class="tag tag-domain">Domain</span></h4>
+      <p><strong>Food-Typen</strong> – Interfaces: <code>RawFoodRecord</code>, <code>NormalizedFoodItem</code>, <code>FoodParserOptions</code>. <span class="term-explain">(TypeScript-"Blaupausen" die beschreiben wie ein Lebensmittel-Datensatz vor und nach der Bereinigung aussieht)</span>.</p>
+    </div>
+
+    <!-- ═══ INFRA LAYER ═══ -->
+    <h3 data-layer="Infra">🔧 Infrastruktur</h3>
+
+    <div class="card" id="f-errors" data-layer="Infra">
+      <h4><code>src/lib/errors.ts</code> <span class="tag tag-infra">Infra</span></h4>
+      <p><strong>Error-Klassen + Helpers (~60 Zeilen)</strong> – <code>AppError</code> als Basisklasse mit statusCode. <code>apiError()</code> und <code>apiSuccess()</code> Helper für konsistentes API-Response-Format. <span class="term">Error Hierarchy</span> <span class="term-explain">(verschiedene Fehlertypen erben von einer gemeinsamen Basisklasse – Validation, NotFound, Internal)</span>.</p>
+      <details><summary>Code-Level Details</summary><div class="detail-body">
+        <ul>
+          <li><code>class AppError extends Error { statusCode: number }</code></li>
+          <li><code>class ValidationError extends AppError { constructor(msg) { super(msg, 400) } }</code></li>
+          <li><code>class NotFoundError extends AppError { ... 404 }</code></li>
+          <li><code>function apiError(error, requestId)</code> → <code>{ success: false, error: { message, code, requestId } }</code></li>
+          <li><code>function apiSuccess(data)</code> → <code>{ success: true, data }</code></li>
+          <li><code>function generateRequestId()</code> → <code>req_${timestamp}_${random}</code></li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card" id="f-utils" data-layer="Infra">
+      <h4><code>src/lib/utils.ts</code> <span class="tag tag-infra">Infra</span></h4>
+      <p><strong>Utility-Funktionen</strong> – <code>cn()</code> für <span class="term">Conditional Class Merging</span> <span class="term-explain">(clsx + twMerge: CSS-Klassen bedingt zusammenführen ohne Konflikte – z.B. "bg-red bg-blue" wird zu "bg-blue")</span>. Standard-Helper in jedem Tailwind-Projekt.</p>
+    </div>
+
+    <div class="card" id="f-apitypes" data-layer="Infra">
+      <h4><code>src/lib/types/api.ts</code> <span class="tag tag-infra">Infra</span></h4>
+      <p><strong>API Response Envelope</strong> – <span class="term">Generic Type</span> <span class="term-explain">(Typ-Schablone die mit verschiedenen Datentypen gefüllt werden kann)</span>: <code>ApiResponse&lt;T&gt; = { success: true, data: T } | { success: false, error: {...} }</code>. Alle API-Antworten nutzen das gleiche Format.</p>
+    </div>
+
+    <div class="card" id="f-supa" data-layer="Infra">
+      <h4><code>src/integrations/supabase/client.ts</code> <span class="tag tag-infra">Infra</span></h4>
+      <p><strong>Supabase Client (~20 Zeilen)</strong> – Erstellt einen <span class="term">Service Role Client</span> <span class="term-explain">(privilegierter Client der RLS umgeht – nur serverseitig verwenden!)</span> mit <code>SUPABASE_SERVICE_ROLE_KEY</code>. Validiert Env-Vars. Exportiert eine einzige <code>supabase</code> Instanz.</p>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════ SECTION 8: API CONTRACTS ═══════════════ -->
+  <section id="sec-api" data-layer="API">
+    <h2>🔌 API Contracts</h2>
+    <table class="tbl">
+      <thead><tr><th>Method</th><th>Endpunkt</th><th>Input</th><th>Output</th><th>Beschreibung</th></tr></thead>
+      <tbody>
+        <tr><td><code>POST</code></td><td><code>/api/chat/query</code></td><td><code>{ question, theme, topK? }</code></td><td><code>{ answer, citations[], resultTable?, latencyMs, model }</code></td><td>Chat-Frage mit RAG-Kontext beantworten</td></tr>
+        <tr><td><code>POST</code></td><td><code>/api/rag/retrieve</code></td><td><code>{ query, theme, topK? }</code></td><td><code>{ matches[], model, latencyMs }</code></td><td>Nur Retrieval ohne LLM</td></tr>
+        <tr><td><code>POST</code></td><td><code>/api/knowledge/upload</code></td><td><code>FormData { file, table }</code></td><td>SSE-Stream mit Events</td><td>Datei uploaden + indexieren</td></tr>
+        <tr><td><code>GET</code></td><td><code>/api/knowledge/stats</code></td><td>–</td><td><code>{ foodItems, ragChunks, importRuns }</code></td><td>Dashboard-Statistiken</td></tr>
+        <tr><td><code>GET</code></td><td><code>/api/knowledge/tables</code></td><td>–</td><td><code>{ tables: [{name, count, icon}] }</code></td><td>RAG-Tabellen-Liste</td></tr>
+        <tr><td><code>GET</code></td><td><code>/api/health</code></td><td>–</td><td><code>{ status, version, features }</code></td><td>Health Check</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>Error Response Format</summary>
+      <div class="detail-body">
+        <pre>{ "success": false, "error": { "message": "...", "code": "VALIDATION_ERROR", "requestId": "req_171..." } }</pre>
+        <p>HTTP-Status-Codes: 400 (Validation), 404 (Not Found), 500 (Internal). Alle über <code>apiError()</code> Helper konsistent.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Umgebungsvariablen</summary>
+      <div class="detail-body">
+        <table class="tbl">
+          <tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code></td><td>Supabase Projekt-URL</td><td>Öffentlich</td></tr>
+          <tr><td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>Anon Key für Client</td><td>Öffentlich</td></tr>
+          <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Service Role Key</td><td>🔑 Geheim!</td></tr>
+          <tr><td><code>GEMINI_API_KEY</code></td><td>Google AI Studio Key</td><td>🔑 Geheim!</td></tr>
+          <tr><td><code>GEMINI_GENERATION_MODEL</code></td><td>z.B. gemini-2.0-flash</td><td>Optional</td></tr>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═══════════════ SECTION 9: DB ═══════════════ -->
+  <section id="sec-db" data-layer="DB">
+    <h2>🗄 Supabase &amp; Datenbank</h2>
+
+    <div class="card">
+      <h4>Datenbank-Extensions</h4>
+      <ul>
+        <li><code>pgvector</code> – Vektorspeicher + Similarity Search</li>
+        <li><code>pg_trgm</code> – Trigram-basierte Textsuche (Fuzzy Matching)</li>
+      </ul>
+    </div>
+
+    <h3>Migrationen</h3>
+    <div class="card" id="f-mig1" data-layer="DB"><h4><code>001_initial_schema.sql</code> <span class="tag tag-db">DB</span></h4><p>Erstellt <code>pgvector</code> Extension, <code>workspaces</code>, <code>documents</code>, <code>chunks</code> Tabellen mit <code>vector(1536)</code> Spalte, <span class="term">GIN Index</span> <span class="term-explain">(Generalized Inverted Index für schnelle Volltextsuche)</span>.</p></div>
+    <div class="card" id="f-mig2" data-layer="DB"><h4><code>002_theme_rag_tables.sql</code> <span class="tag tag-db">DB</span></h4><p>Theme-spezifische Tabellen: <code>rag_saas_docs_chunks</code>, <code>rag_exercises_chunks</code> mit <code>vector(384)</code>. Dazu <code>match_rag_*_chunks</code> <span class="term">RPCs</span> <span class="term-explain">(Remote Procedure Calls – SQL-Funktionen die über die Supabase API aufgerufen werden können)</span>.</p></div>
+    <div class="card" id="f-mig3" data-layer="DB"><h4><code>003_food_pipeline.sql</code> <span class="tag tag-db">DB</span></h4><p><code>food_items</code> Tabelle mit Nährwertfeldern + <code>embedding vector(384)</code>. <code>import_runs</code> + <code>import_errors</code> Tracking. <code>match_food_items</code> und <code>search_food_lexical</code> RPCs. <span class="term">pg_trgm GIN-Index</span> auf <code>name</code> für Fuzzy-Search.</p></div>
+    <div class="card" id="f-mig4" data-layer="DB"><h4><code>004_saas_exercises_hnsw.sql</code> <span class="tag tag-db">DB</span></h4><p>Fügt <span class="term">HNSW-Indizes</span> <span class="term-explain">(Hierarchical Navigable Small World – schnellerer Vektorindex für große Datenmengen vs. IVFFlat)</span> auf alle <code>embedding</code>-Spalten hinzu. Auch: <code>get_rag_tables()</code> RPC für dynamische Tabellen-Erkennung.</p></div>
+    <div class="card" id="f-mig5" data-layer="DB"><h4><code>005_remove_workspace_id.sql</code> <span class="tag tag-db">DB</span></h4><p>Entfernt <code>workspace_id</code> Parameter aus allen RPCs. <span class="term-explain">(Vereinfachung: Multi-Tenant auf Single-Tenant umgebaut weil für die Demo nur ein Workspace gebraucht wird)</span>.</p></div>
+    <div class="card" id="f-mig6" data-layer="DB"><h4><code>006_runtime_alignment.sql</code> <span class="tag tag-db">DB</span></h4><p>SQL-Runtime-Anpassungen: Spalten-Typen und Defaults synchronisiert, ggf. fehlende Indizes nachgeholt.</p></div>
+  </section>
+
+  <!-- ═══════════════ ROOT CONFIGS ═══════════════ -->
+  <section data-layer="Infra">
+    <h3>📁 Root-Konfigurationsdateien</h3>
+    <div class="card" id="f-pkg" data-layer="Infra"><h4><code>package.json</code> <span class="tag tag-infra">Infra</span></h4><p>Projekt-Manifest: Name "challenge-rag", Scripts: <code>dev</code>, <code>build</code>, <code>start</code>, <code>lint</code>. Dependencies: next, react, @supabase/supabase-js, @xenova/transformers, zod, framer-motion, react-markdown. DevDependencies: typescript, @types/*, tailwindcss, eslint.</p></div>
+    <div class="card" id="f-tsconfig" data-layer="Infra"><h4><code>tsconfig.json</code> <span class="tag tag-infra">Infra</span></h4><p><span class="term">Strict Mode</span> <span class="term-explain">(alle strikten TypeScript-Prüfungen aktiviert: null-Checks, implicit-any, usw.)</span>. Path-Alias: <code>@/*</code> → <code>src/*</code>. Module: ESNext, JSX: preserve.</p></div>
+    <div class="card" id="f-nextcfg" data-layer="Infra"><h4><code>next.config.ts</code> <span class="tag tag-infra">Infra</span></h4><p>Minimale Config. <code>serverExternalPackages: ['onnxruntime-node']</code> – <span class="term-explain">(ONNX-Runtime wird nicht gebundled sondern als native Dependency geladen – nötig für Xenova)</span>.</p></div>
+    <div class="card" id="f-readme" data-layer="Infra"><h4><code>README.md</code> <span class="tag tag-infra">Infra</span></h4><p>Projektbeschreibung, Setup-Anleitung, Architektur-Übersicht, Environment-Variables Referenz.</p></div>
+  </section>
+
+  <!-- ═══════════════ SECTION 10: Q&A ═══════════════ -->
+  <section id="sec-qa" data-layer="QA">
+    <h2>💬 Interview Q&amp;A – Spickzettel</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">15 Fragen die kommen könnten – mit fertigen Antwortbausteinen.</p>
+
+    <div class="card qa-card" data-layer="QA"><h4>F1: Welches State Management nutzt du?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p><strong>React useState + useCallback</strong> – für diese App reicht Reacts eingebautes State Management. Es gibt keinen globalen State (kein Redux, kein Zustand). Jede Komponente verwaltet ihren eigenen State: Chat-Nachrichten in <code>animated-ai-chat.tsx</code>, Upload-Stage in <code>rag-upload-modal.tsx</code>. Das <span class="term">Theme</span> wird über <code>next-themes</code> verwaltet (Context-basiert). Wenn die App wachsen würde, wäre <strong>Zustand</strong> mein Favorit – leichtgewichtig, wenig Boilerplate, gut mit React 19.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F2: Welche Tests hast du?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>Aktuell: <strong>keine automatisierten Tests</strong> – bewusste Entscheidung für die Challenge-Zeitschiene. Bei produktivem Code würde ich: 1) <strong>Unit-Tests</strong> mit Vitest für Parser, Normalizer, Schemas. 2) <strong>Integration-Tests</strong> für API-Routes mit supertest. 3) <strong>E2E-Tests</strong> mit Playwright für den Upload-Flow und Chat. Die Architektur ist testbar (Dependency Injection, Interfaces, reine Funktionen).</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F3: Warum Xenova statt Cloud-Embeddings?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>Zuerst Google Gemini <code>text-embedding-004</code> probiert → <strong>429 Rate-Limits</strong> beim Batch-Upload (obwohl bezahlt). Für eine Demo braucht man <strong>Zuverlässigkeit</strong>. Xenova (<code>all-MiniLM-L6-v2</code>): Lokal, kostenlos, keine Limits, ~20ms/Text. Trade-off: 384d statt 768d → etwas weniger Qualität, aber für Retrieval ausreichend. Cold Start ~3s beim ersten Laden.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F4: Warum Gemini und nicht OpenAI?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>1) <strong>Gemini 2.0 Flash</strong> ist schnell und günstig. 2) Kostenlose Tier beim Start. 3) Gute Qualität für RAG. 4) <strong>Aber</strong>: dank Provider Pattern kann ich jederzeit zu OpenAI wechseln – nur eine neue Klasse die <code>AnswerGenerator</code> Interface implementiert. Architektur-Entscheidung: <em>welcher Provider</em> ist austauschbar, die <em>Pipeline</em> bleibt gleich.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F5: Warum SSE statt WebSocket für Upload?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>SSE ist <strong>unidirektional</strong> (Server → Client). Für Upload-Fortschritt brauche ich nur eine Richtung. WebSocket wäre Overkill: bidirektional, Heartbeats, Reconnect-Logik. SSE: einfacher, HTTP/2-kompatibel, läuft durch Proxies, automatischer Reconnect im Browser. Ein paar Zeilen Code vs. eine ganze Library.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F6: Warum Supabase statt eine eigene DB?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>Supabase = <strong>PostgreSQL + pgvector + Auth + RPC + Dashboard</strong> out of the box. Kein DB-Setup, kein Hosting. pgvector drin → brauche keine separate Vektordatenbank (Pinecone, Weaviate). Managed Infrastructure. Free Tier für Demos. Supabase JS-Client hat gute TypeScript-Typen. Migrationen per SQL-Dateien – versionierbar und reproduzierbar.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F7: Wie skaliert das System?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p><strong>Horizontal:</strong> Next.js auf Vercel = auto-scaling. <strong>DB:</strong> Supabase Pro hat Connection Pools + Read Replicas. <strong>Embedding:</strong> Cold Start mit Model Cache → warm nach 1. Request. <strong>HNSW-Indizes:</strong> sublinear O(log n) statt linear scan. <strong>Bottleneck:</strong> CPU-basierte Embeddings – bei hoher Last: GPU oder Cloud-Embeddings nutzen. Theme-System: neue Themes ohne Code-Änderung.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F8: Was würdest du anders machen?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>1) <strong>Token-Streaming</strong> für LLM-Antworten (SSE aus Gemini → sofort anzeigen). 2) <strong>Chat-History Persistence</strong> in DB speichern. 3) <strong>Error Boundaries</strong> in React. 4) <strong>Tests</strong> von Anfang an. 5) <strong>Caching Layer</strong> für wiederholte Fragen (Redis). 6) <strong>Embedding Queue</strong> mit Bull/BullMQ für große Uploads. 7) Multi-Tenant von Anfang an richtig machen.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F9: Was ist das Provider Pattern?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>Ein <span class="term">Interface</span> (Vertrag) definiert <em>welche</em> Methoden existieren müssen. Eine <span class="term">Implementierung</span> (Klasse/Objekt) sagt <em>wie</em>. Beispiel: <code>EmbeddingProvider</code> hat <code>embed()</code> + <code>embedBatch()</code>. <code>LocalEmbeddingProvider</code> implementiert mit Xenova. Morgen kann ich <code>OpenAIEmbeddingProvider</code> schreiben ohne den Orchestrator anzufassen. Der Orchestrator kennt nur das Interface.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F10: Hybrid vs. Semantic Retrieval?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p><strong>Semantic:</strong> Frage → Vektor → Cosine Similarity → Top-K. Gut für bedeutungsähnliche Texte. <strong>Hybrid:</strong> Semantic + Lexical (pg_trgm) parallel → Ergebnisse mergen. Lexical fängt ab was Vektoren verpassen: exakte Matches, Tippfehler ("Hähnch" → "Hähnchenbrust"). Hybrid nur für Food aktiviert weil dort Produktnamen exakt gesucht werden. SaaS/Exercises → nur Semantic.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F11: Welche Design Patterns nutzt du?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <ul>
+          <li><strong>Provider Pattern</strong> – austauschbare AI-Implementierungen</li>
+          <li><strong>Facade/Orchestrator</strong> – eine Schnittstelle für die gesamte Pipeline</li>
+          <li><strong>Registry Pattern</strong> – zentrale Theme-Verwaltung</li>
+          <li><strong>Strategy Pattern</strong> – verschiedene Parser für verschiedene Formate</li>
+          <li><strong>State Machine</strong> – Upload-Stages (idle→uploading→complete)</li>
+          <li><strong>Singleton</strong> – Orchestrator + Embedding Pipeline</li>
+          <li><strong>Error Hierarchy</strong> – AppError → ValidationError/NotFoundError</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F12: Wie geht ihr mit Fehlern um?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p><strong>API-Layer:</strong> try/catch → <code>apiError()</code> → konsistentes JSON mit requestId, HTTP-Statuscode, Error-Code. <strong>Frontend:</strong> Graceful Degradation – Fallback-Werte bei API-Fehler. <strong>Upload:</strong> Einzelne Fehler werden geloggt (import_errors), Upload läuft weiter. <strong>Zod:</strong> safeParse → Validation-Fehler werden als 400er zurückgegeben.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F13: Warum TypeScript mit strict mode?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>Strict mode fängt Bugs <em>vor</em> der Laufzeit ab: null-Pointer, fehlende Properties, falsche Typen. Zusammen mit Zod (Runtime) → doppelte Absicherung: TypeScript prüft zur Compile-Zeit, Zod zur Laufzeit. <code>z.infer</code> synchronisiert beides automatisch. Kosten: etwas mehr Tipparbeit. Nutzen: weniger Bugs in Production.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F14: Was passiert wenn Gemini ausfällt?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <p>Retrieval funktioniert trotzdem (läuft lokal + Supabase). Nur die Antwort-Generierung fällt aus → Error-Response an den User: "Antwort konnte nicht generiert werden". Nächster Schritt wäre <strong>Fallback-Provider</strong>: wenn Gemini 5xx → OpenAI versuchen. Dank Interface: <code>providers = [gemini, openai]</code> → erster der antwortet gewinnt.</p>
+      </div></details>
+    </div>
+
+    <div class="card qa-card" data-layer="QA"><h4>F15: Nächste Schritte?</h4>
+      <details><summary>Antwort</summary><div class="detail-body">
+        <ol>
+          <li>Token-Streaming (SSE von Gemini → wortweise Anzeige)</li>
+          <li>Chat-Verlauf in DB persistieren</li>
+          <li>React Error Boundary einbauen</li>
+          <li>Unit + Integration Tests mit Vitest</li>
+          <li>Caching-Layer für häufige Fragen</li>
+          <li>Dokumentenanalyse: PDF/Word Upload</li>
+          <li>Multi-User Auth mit Supabase Auth</li>
+        </ol>
+      </div></details>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SECTION 11: MEGA GLOSSARY ═══════════════ -->
+  <section id="sec-glossary" data-layer="all">
+    <h2>📚 Mega-Glossar – Fachbegriffe verständlich</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:18px">Aufgeteilt in Kategorien. Jeder Begriff mit Erklärung, Alltagsvergleich und wo möglich Beispiel-Library die Entwickler weltweit nutzen.</p>
+
+    <!-- ▸ KI / ML -->
+    <h3>🤖 KI &amp; Machine Learning</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:22%">Begriff</th><th>Was es ist, einfach erklärt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>RAG</strong></td><td>Retrieval-Augmented Generation – die KI sucht erst in Dokumenten nach Infos und baut die Antwort dann daraus. Wie ein Schüler der erst im Buch nachschlägt bevor er antwortet.</td></tr>
+        <tr><td><strong>Embedding</strong></td><td>Text wird in eine Liste von Zahlen (Vektor) umgewandelt die die <em>Bedeutung</em> darstellt. "Hund" und "Welpe" bekommen ähnliche Zahlen. Populäre Modelle: <code>all-MiniLM-L6-v2</code> (lokal), <code>text-embedding-3-small</code> (OpenAI), <code>text-embedding-004</code> (Google).</td></tr>
+        <tr><td><strong>Vektor</strong></td><td>Eine geordnete Liste von Zahlen, z.B. <code>[0.12, -0.85, 0.33, ...]</code> mit 384 Einträgen. Stell dir einen Punkt in einem 384-dimensionalen Raum vor – je näher zwei Punkte beieinander liegen, desto ähnlicher sind die Texte.</td></tr>
+        <tr><td><strong>Cosine Similarity</strong></td><td>Maß dafür, wie ähnlich zwei Vektoren sind (1.0 = identisch, 0.0 = komplett verschieden). Findet heraus ob "günstiges Essen" und "preiswerte Mahlzeit" ähnlich sind – ja, ~0.85.</td></tr>
+        <tr><td><strong>Chunking</strong></td><td>Große Dokumente werden in kleine Stücke geschnitten (z.B. 500 Zeichen) damit die KI sie besser verarbeiten kann. Wie ein Buch in Karteikarten aufteilen.</td></tr>
+        <tr><td><strong>LLM</strong></td><td>Large Language Model – eine riesige KI die auf Milliarden von Texten trainiert wurde. Beispiele: GPT-4 (OpenAI), Gemini (Google), Claude (Anthropic), LLaMA (Meta). Kann Texte verstehen, zusammenfassen, beantworten, übersetzen.</td></tr>
+        <tr><td><strong>Prompt</strong></td><td>Die Anweisung die man der KI gibt. Ein guter Prompt = gute Antwort. Beispiel: "Du bist ein Ernährungsexperte. Beantworte basierend auf folgendem Kontext: [Chunks]"</td></tr>
+        <tr><td><strong>Token</strong></td><td>Die kleinste Einheit die eine KI verarbeitet – meistens ein Wort oder Wortteil. "Hähnchenbrust" ≈ 3 Tokens. GPT-4 kann ~128.000 Tokens pro Anfrage verarbeiten.</td></tr>
+        <tr><td><strong>Transformer</strong></td><td>Die Architektur hinter allen modernen KI-Modellen (seit 2017). Nutzt "Attention" um zu verstehen welche Wörter in einem Satz zusammengehören. Library: <code>@xenova/transformers</code> (JS), <code>transformers</code> (Python, Hugging Face).</td></tr>
+        <tr><td><strong>ONNX Runtime</strong></td><td>Laufzeitumgebung die KI-Modelle effizient ausführt. Macht es möglich, ein Python-trainiertes Modell in JavaScript laufen zu lassen. Library: <code>onnxruntime-node</code>.</td></tr>
+        <tr><td><strong>Mean Pooling</strong></td><td>Aus vielen Token-Vektoren einen einzigen Durchschnittsvektor berechnen. Wie das Durchschnittsgesicht einer Gruppe – repräsentiert alle.</td></tr>
+        <tr><td><strong>Normalisierung (Vektoren)</strong></td><td>Vektor auf Länge 1 skalieren damit Cosine Similarity korrekt funktioniert. Wie bei Noten: Erst normalisieren, dann vergleichen.</td></tr>
+        <tr><td><strong>Batch Processing</strong></td><td>Statt Texte einzeln zu embedden, werden 100 auf einmal verarbeitet. 100× schneller als einzeln. Wie Wäsche: alles zusammen in die Maschine statt jedes Kleidungsstück einzeln waschen.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ▸ Web -->
+    <h3>🌐 Web-Architektur &amp; Backend</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:22%">Begriff</th><th>Was es ist, einfach erklärt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>API</strong></td><td>Application Programming Interface – eine Schnittstelle über die Programme miteinander reden. Wie ein Kellner: du bestellst (Request), er bringt das Essen (Response). Wir nutzen: REST API über Next.js Route Handlers.</td></tr>
+        <tr><td><strong>REST</strong></td><td>Architekturstil für APIs: jede URL ist eine Ressource, HTTP-Methoden (GET/POST/PUT/DELETE) sagen was passieren soll. Standard in ~90% aller Web-APIs.</td></tr>
+        <tr><td><strong>Route Handler</strong></td><td>In Next.js: eine Datei (<code>route.ts</code>) die HTTP-Anfragen direkt bearbeitet. <code>export async function POST(req)</code> = diese Datei handelt POST-Requests. Kein Express.js nötig.</td></tr>
+        <tr><td><strong>SSE (Server-Sent Events)</strong></td><td>Einweg-Datenstrom vom Server zum Browser. Perfekt für Fortschrittsanzeigen (Upload: "10/100 fertig... 50/100... done!"). Einfacher als WebSocket. Browser hat eingebauten <code>EventSource</code>.</td></tr>
+        <tr><td><strong>WebSocket</strong></td><td>Bidirektionaler Echtzeit-Kanal zwischen Server und Browser. Für Chat, Multiplayer-Games, Live-Daten. Libraries: <code>socket.io</code> (150M+ Downloads/Monat), <code>ws</code>.</td></tr>
+        <tr><td><strong>Middleware</strong></td><td>Code der zwischen Anfrage und Antwort läuft – z.B. Auth-Check, Logging, Rate-Limiting. Wie ein Türsteher der prüft bevor du reinkommst. Libraries: <code>express</code>, Next.js Middleware.</td></tr>
+        <tr><td><strong>RPC</strong></td><td>Remote Procedure Call – eine Funktion die über Netzwerk aufgerufen wird als wäre sie lokal. In Supabase: SQL-Funktionen die per <code>supabase.rpc('match_food_items', {...})</code> aufgerufen werden.</td></tr>
+        <tr><td><strong>FormData</strong></td><td>Browser-API um Dateien + Textfelder zusammen an den Server zu senden. Standard für File-Uploads. Jeder Browser unterstützt das seit ~2012.</td></tr>
+        <tr><td><strong>Environment Variables</strong></td><td>Geheime Einstellungen die nicht im Code stehen (API-Keys, DB-URLs). Liegen in <code>.env.local</code>. <code>NEXT_PUBLIC_</code> = öffentlich sichtbar, ohne Prefix = nur Server.</td></tr>
+        <tr><td><strong>Edge Function</strong></td><td>Serverless-Funktion die an vielen Standorten weltweit läuft (CDN Edge). Schnell weil nahe am User. Supabase und Vercel bieten diese an. Library: Deno Runtime.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ▸ React -->
+    <h3>⚛️ React &amp; Frontend</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:22%">Begriff</th><th>Was es ist, einfach erklärt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>React</strong></td><td>Die populärste UI-Library (von Meta). Baut Benutzeroberflächen aus wiederverwendbaren Komponenten. ~23M Downloads/Woche auf npm. Konkurrenten: Vue.js, Svelte, Angular.</td></tr>
+        <tr><td><strong>Next.js</strong></td><td>React-Framework das Server-Rendering, Routing, API-Routes und Optimierungen mitbringt. Von Vercel. ~7M Downloads/Woche. Alternativen: Remix, Nuxt (Vue), SvelteKit.</td></tr>
+        <tr><td><strong>Client Component</strong></td><td>React-Komponente mit <code>"use client"</code> die im Browser läuft. Nötig für: useState, useEffect, onClick – alles was Interaktivität braucht.</td></tr>
+        <tr><td><strong>Server Component</strong></td><td>React-Komponente die auf dem Server gerendert wird (Next.js 13+ Standard). Vorteil: kein JS an den Browser geschickt, schneller, direkter DB-Zugriff möglich.</td></tr>
+        <tr><td><strong>useState</strong></td><td>React Hook zum Speichern von Werten die sich ändern können. <code>const [count, setCount] = useState(0)</code> – wenn sich count ändert, rendert React die Komponente neu.</td></tr>
+        <tr><td><strong>useEffect</strong></td><td>React Hook für Seiteneffekte: Daten laden, Event-Listener setzen, Timer starten. Läuft nach dem Rendern. <code>useEffect(() => fetchData(), [])</code> = läuft einmal beim Laden.</td></tr>
+        <tr><td><strong>useCallback</strong></td><td>React Hook der eine Funktion cacht. Ohne useCallback wird die Funktion bei jedem Render neu erstellt → unnötige Re-Renders bei Kind-Komponenten.</td></tr>
+        <tr><td><strong>useTransition</strong></td><td>React 18+ Hook: markiert eine Aktion als "nicht dringend" damit die UI reaktionsfähig bleibt. Perfekt für API-Calls: User kann weitertippen während die Antwort lädt.</td></tr>
+        <tr><td><strong>Framer Motion</strong></td><td>Die populärste React-Animations-Library. <code>&lt;motion.div animate={{opacity:1}}&gt;</code> statt manuelles CSS. ~5M Downloads/Woche. Macht komplexe Animationen simpel.</td></tr>
+        <tr><td><strong>Tailwind CSS</strong></td><td>Utility-first CSS Framework. Statt <code>.btn { background: blue }</code> schreibst du <code>class="bg-blue-500"</code>. ~10M Downloads/Woche. Wir nutzen Tailwind 4 mit <code>@theme</code> Blocks.</td></tr>
+        <tr><td><strong>next-themes</strong></td><td>Library für Dark/Light Mode in Next.js. 3 Zeilen Code für perfektes Theme-Switching mit System-Erkennung und Flash-Vermeidung.</td></tr>
+        <tr><td><strong>react-markdown</strong></td><td>Library die Markdown-Text als React-Komponenten rendert. Mit <code>remark-gfm</code> Plugin auch: Tabellen, Checkboxen, Strikethrough.</td></tr>
+        <tr><td><strong>Lucide Icons</strong></td><td>Icon-Library mit 1400+ sauberen SVG-Icons als React-Komponenten. Fork von Feather Icons. <code>&lt;Search size={16} /&gt;</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ▸ DB -->
+    <h3>🗄️ Datenbank &amp; Supabase</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:22%">Begriff</th><th>Was es ist, einfach erklärt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PostgreSQL</strong></td><td>Die mächtigste Open-Source-Datenbank der Welt. Kann alles: relationale Daten, JSON, Volltextsuche, Vektoren. Basis von Supabase. Konkurrent: MySQL, aber Postgres gilt als technisch überlegen.</td></tr>
+        <tr><td><strong>Supabase</strong></td><td>"Open Source Firebase Alternative". Managed PostgreSQL + Auth + Echtzeit + Storage + Edge Functions. Kostenloser Tier für Demos. Client-Library: <code>@supabase/supabase-js</code>.</td></tr>
+        <tr><td><strong>pgvector</strong></td><td>PostgreSQL-Extension für Vektorspeicher. Statt eine separate Vektordatenbank (Pinecone $$$, Weaviate) zu betreiben, einfach <code>CREATE EXTENSION vector</code> – alles in einer DB.</td></tr>
+        <tr><td><strong>pg_trgm</strong></td><td>PostgreSQL-Extension für Trigram-basierte Textsuche. Findet "Hänchenbrust" auch wenn der User "Hänchenb" tippt. Wie autocomplete, aber in der Datenbank.</td></tr>
+        <tr><td><strong>HNSW-Index</strong></td><td>Hierarchical Navigable Small World – moderner Vektorindex. Findet die ähnlichsten Vektoren in O(log n) statt O(n). Wie ein Navi: statt alle Straßen abzulaufen, navigiert es intelligent. Schneller als IVFFlat für &lt;1M Vektoren.</td></tr>
+        <tr><td><strong>GIN-Index</strong></td><td>Generalized Inverted Index – PostgreSQL-Index für Volltext- und Trigram-Suche. Dreht die Suche um: statt "in welchem Dokument steht X" → Index speichert "X steht in Dok 1, 5, 99".</td></tr>
+        <tr><td><strong>Migration</strong></td><td>Eine SQL-Datei die die Datenbankstruktur verändert (Tabelle anlegen, Spalte hinzufügen). Wird versioniert und in Reihenfolge ausgeführt. Wie Git-Commits, aber für die Datenbank.</td></tr>
+        <tr><td><strong>Upsert</strong></td><td>UPDATE + INSERT in einem Schritt: Wenn der Datensatz existiert → aktualisieren. Wenn nicht → neu anlegen. Spart eine Abfrage. <code>supabase.from('table').upsert(data, {onConflict: 'id'})</code>.</td></tr>
+        <tr><td><strong>RLS (Row Level Security)</strong></td><td>Supabase/PostgreSQL-Feature: Zugriff wird auf Zeilenebene kontrolliert. "User A darf nur seine eigenen Daten sehen." Wird per SQL-Policy definiert.</td></tr>
+        <tr><td><strong>Service Role Key</strong></td><td>Privilegierter API-Key der RLS umgeht. Nur serverseitig nutzen! Wer diesen Key hat, hat vollen DB-Zugriff. Liegt in <code>SUPABASE_SERVICE_ROLE_KEY</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ▸ DevOps -->
+    <h3>🔧 DevOps, Tooling &amp; Libraries</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:22%">Begriff</th><th>Was es ist, einfach erklärt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>TypeScript</strong></td><td>JavaScript mit Typen. <code>function add(a: number, b: number): number</code> statt <code>function add(a, b)</code>. Fängt Fehler VOR der Ausführung ab. ~50M Downloads/Woche. De-facto Standard in der Industrie.</td></tr>
+        <tr><td><strong>Zod</strong></td><td>Schema-Validation Library. Prüft zur Laufzeit ob Daten das richtige Format haben: <code>z.object({name: z.string().min(1)})</code>. ~15M Downloads/Woche. TypeScript-Typen werden automatisch abgeleitet. Alternativen: Yup, Joi, Valibot.</td></tr>
+        <tr><td><strong>npm</strong></td><td>Node Package Manager – die weltgrößte Software-Registry mit ~2.5M Packages. <code>npm install react</code> installiert React + alle Abhängigkeiten.</td></tr>
+        <tr><td><strong>ESLint</strong></td><td>Code-Qualitäts-Tool das Fehler und Style-Probleme findet bevor du deployst. "Du hast eine Variable definiert aber nie benutzt" → Warnung. ~35M Downloads/Woche.</td></tr>
+        <tr><td><strong>Vercel</strong></td><td>Cloud-Plattform speziell für Next.js (gleiche Firma). Git-Push → automatisches Deployment in Sekunden. Free Tier für Hobby-Projekte. Serverless Functions inklusive.</td></tr>
+        <tr><td><strong>Serverless</strong></td><td>Du schreibst eine Funktion, die Cloud kümmert sich um Server, Skalierung, Betrieb. Zahlung pro Aufruf statt pro Stunde. Next.js API-Routes auf Vercel = Serverless.</td></tr>
+        <tr><td><strong>Strict Mode (TS)</strong></td><td>Alle strikten TypeScript-Prüfungen an: <code>noImplicitAny</code>, <code>strictNullChecks</code>, <code>strictFunctionTypes</code>. Ja, es nervt manchmal. Aber es verhindert 80% der Produktionsfehler.</td></tr>
+        <tr><td><strong>Path Alias</strong></td><td><code>@/components/Chat</code> statt <code>../../../components/Chat</code>. Konfiguriert in <code>tsconfig.json</code>: <code>"@/*": ["src/*"]</code>. Standard-Praxis in professionellen Projekten.</td></tr>
+        <tr><td><strong>Hot Module Replacement</strong></td><td>Code ändern → Browser aktualisiert sich sofort ohne Reload. <code>npm run dev</code> aktiviert HMR automatisch. Spart beim Entwickeln hunderte Reloads pro Tag.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ▸ Patterns -->
+    <h3>🏗️ Design Patterns &amp; Architektur</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:22%">Begriff</th><th>Was es ist, einfach erklärt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Provider Pattern</strong></td><td>Ein Interface definiert den Vertrag ("was"), verschiedene Klassen implementieren ("wie"). Wie ein USB-Anschluss: egal ob Maus oder Tastatur – der Anschluss ist gleich. Unser Beispiel: <code>EmbeddingProvider</code> → Xenova oder OpenAI.</td></tr>
+        <tr><td><strong>Singleton</strong></td><td>Es existiert nur ein einziges Objekt einer Klasse im gesamten Programm. Unser <code>ragOrchestrator</code> und die Embedding-Pipeline sind Singletons – spart Speicher, verhindert Inkonsistenzen.</td></tr>
+        <tr><td><strong>Facade Pattern</strong></td><td>Eine einfache Schnittstelle die etwas Komplexes verbirgt. Der <code>ragOrchestrator.query()</code> ist eine Fassade: ein Aufruf, aber dahinter laufen Retriever, Generator, Normalizer.</td></tr>
+        <tr><td><strong>Registry Pattern</strong></td><td>Zentrale Map die Objekte nach Key verwaltet. <code>themeConfigs['food']</code> → sofort die richtige Config. Neues Theme hinzufügen = ein neuer Eintrag in der Map.</td></tr>
+        <tr><td><strong>Strategy Pattern</strong></td><td>Verschiedene Algorithmen austauschbar machen. Unser Parser: <code>.json</code> → JSON-Strategie, <code>.csv</code> → CSV-Strategie. Gleiches Interface, unterschiedliche Implementierung.</td></tr>
+        <tr><td><strong>State Machine</strong></td><td>Definierte Zustände mit erlaubten Übergängen. Upload-Modal: <code>idle → selected → uploading → processing → complete</code>. Verhindert unmögliche Zustände (z.B. "processing" ohne vorheriges "uploading").</td></tr>
+        <tr><td><strong>Dependency Injection (DI)</strong></td><td>Abhängigkeiten von außen reingeben statt im Code fest verdrahten. <code>new Orchestrator(retriever, generator)</code> statt <code>new Orchestrator()</code> mit fest verdrahtetem Retriever. Macht Testen und Austauschen trivial.</td></tr>
+        <tr><td><strong>Separation of Concerns</strong></td><td>Jedes Modul hat genau eine Aufgabe. UI-Code kennt keine DB-Queries. API-Routes kennen keine Rendering-Logik. Wie in einer Küche: Koch, Kellner und Kassierer haben verschiedene Jobs.</td></tr>
+        <tr><td><strong>Graceful Degradation</strong></td><td>Wenn etwas schief geht, funktioniert die App trotzdem – nur eingeschränkt. Statt Crash → Fallback-Werte anzeigen. Knowledge-Dashboard: API-Fehler → "0 Einträge" statt weiße Seite.</td></tr>
+        <tr><td><strong>Fail-Fast</strong></td><td>Fehler sofort beim Start melden, nicht erst wenn es zu spät ist. Gemini-Config: kein API-Key? → Sofort Error beim Import statt mysteriöser Fehler 10 Minuten später bei einem User-Request.</td></tr>
+        <tr><td><strong>Cold Start</strong></td><td>Die erste Anfrage ist langsam weil etwas geladen werden muss (z.B. KI-Modell). Danach schnell. Wie ein Auto im Winter: erst Motor warmfahren, dann normal. Unser Embedding-Modell: ~3s → danach &lt;50ms.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════ SECTION 12: KNOWN GAPS ═══════════════ -->
+  <section id="sec-gaps" data-layer="all">
+    <h2>⚠️ Known Gaps – Ehrlich dokumentiert</h2>
+    <div class="card gap-card"><h4>1. Keine automatisierten Tests</h4><p>Kein Unit/Integration/E2E Testing. Architecture ist testbar (DI, Interfaces), Tests würde ich zuerst für Parser + Schemas schreiben.</p></div>
+    <div class="card gap-card"><h4>2. Kein Token-Streaming</h4><p>Gemini-Antwort kommt als ganzer Block statt wortweise. User wartet 2-5s ohne Feedback. Fix: SSE-Stream aus der Gemini API.</p></div>
+    <div class="card gap-card"><h4>3. Kein Chat-Verlauf</h4><p>Nachrichten nur im React-State (RAM). Page-Reload = alles weg. Fix: <code>chat_messages</code> Tabelle in Supabase.</p></div>
+    <div class="card gap-card"><h4>4. Keine Error Boundary</h4><p>Frontend-Fehler → weißer Bildschirm. Fix: React <code>&lt;ErrorBoundary&gt;</code> Komponente.</p></div>
+    <div class="card gap-card"><h4>5. Cold Start Latenz</h4><p>Erster Embedding-Call ~2-5s (Modell laden). Danach <50ms. Workaround: <code>preloadModel()</code> existiert bereits.</p></div>
+    <div class="card gap-card"><h4>6. Single-Tenant</h4><p>Kein Multi-User Support. Service Role Key direkt genutzt. Für Production: Supabase Auth + RLS Policies.</p></div>
+    <div class="card gap-card"><h4>7. Kein Rate Limiting</h4><p>API-Endpunkte ungeschützt. Fix: Middleware mit Token-Bucket oder Vercel Edge Middleware.</p></div>
+    <div class="card gap-card"><h4>8. Keine Monitoring/Logging</h4><p>Nur <code>console.log</code>. Fix: Structured Logging (Pino) + Error Tracking (Sentry) + APM.</p></div>
+  </section>
+
+</div> <!-- /.main -->
+</div> <!-- /.layout -->
+
+<script>
+(function() {
+  'use strict';
+
+  // ── File Tree Toggle ──
+  document.querySelectorAll('.tree-folder > .tree-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var folder = this.parentElement;
+      var children = folder.querySelector('.tree-children');
+      var chevron = this.querySelector('.tree-chevron');
+      if (!children) return;
+      var isOpen = folder.getAttribute('data-open') === 'true';
+      folder.setAttribute('data-open', String(!isOpen));
+      if (isOpen) {
+        children.classList.add('collapsed');
+        if (chevron) chevron.classList.remove('open');
+      } else {
+        children.classList.remove('collapsed');
+        if (chevron) chevron.classList.add('open');
+      }
+    });
+  });
+
+  // ── File Tree Click → Scroll to Deep Dive ──
+  document.querySelectorAll('.tree-file .tree-item[data-target]').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var target = document.querySelector(this.getAttribute('data-target'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        target.style.outline = '2px solid var(--accent)';
+        setTimeout(function() { target.style.outline = ''; }, 2000);
+        var details = target.querySelector('details');
+        if (details && !details.open) details.open = true;
+      }
+    });
+  });
+
+  // ── Search ──
+  var searchInput = document.getElementById('searchInput');
+  var searchCount = document.getElementById('searchCount');
+  var mainContent = document.getElementById('mainContent');
+
+  function clearMarks() {
+    mainContent.querySelectorAll('mark.search-mark').forEach(function(m) {
+      m.classList.remove('search-first');
+      var parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+  }
+
+  function highlightText(node, query) {
+    if (node.nodeType === 3) {
+      var idx = node.textContent.toLowerCase().indexOf(query);
+      if (idx >= 0) {
+        var span = document.createElement('mark');
+        span.className = 'search-mark';
+        var after = node.splitText(idx);
+        after.splitText(query.length);
+        span.appendChild(after.cloneNode(true));
+        after.parentNode.replaceChild(span, after);
+        return 1;
+      }
+      return 0;
+    }
+    if (node.nodeType === 1 && node.childNodes && !/(script|style|mark)/i.test(node.tagName)) {
+      var count = 0;
+      for (var i = 0; i < node.childNodes.length; i++) {
+        count += highlightText(node.childNodes[i], query);
+      }
+      return count;
+    }
+    return 0;
+  }
+
+  searchInput.addEventListener('input', function() {
+    clearMarks();
+    var query = this.value.trim().toLowerCase();
+    mainContent.querySelectorAll('.search-hidden').forEach(function(el) {
+      el.classList.remove('search-hidden');
+    });
+
+    if (!query || query.length < 2) {
+      searchCount.textContent = '';
+      return;
+    }
+
+    var cards = mainContent.querySelectorAll('.card, section, tr, details');
+    var totalMatches = 0;
+    var visibleCards = 0;
+
+    cards.forEach(function(card) {
+      var text = card.textContent.toLowerCase();
+      if (text.indexOf(query) >= 0) {
+        visibleCards++;
+        totalMatches += highlightText(card, query);
+        // Auto-open details that contain matches
+        var det = card.closest('details');
+        if (det && !det.open) det.open = true;
+        if (card.tagName === 'DETAILS' && !card.open) card.open = true;
+      }
+    });
+
+    searchCount.textContent = totalMatches > 0
+      ? totalMatches + ' Treffer in ' + visibleCards + ' Elementen'
+      : 'Keine Treffer für "' + this.value + '"';
+
+    // Jump to first match
+    var firstMark = mainContent.querySelector('mark.search-mark');
+    if (firstMark) {
+      firstMark.classList.add('search-first');
+      firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  // ── Filter Chips ──
+  document.querySelectorAll('.chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+      this.classList.add('active');
+      var filter = this.getAttribute('data-filter');
+
+      mainContent.querySelectorAll('.card, section > h3').forEach(function(el) {
+        el.classList.remove('search-hidden');
+      });
+
+      if (filter !== 'all') {
+        mainContent.querySelectorAll('.card[data-layer]').forEach(function(card) {
+          var layer = card.getAttribute('data-layer');
+          if (layer !== filter && layer !== 'all') {
+            card.classList.add('search-hidden');
+          }
+        });
+      }
+
+      searchInput.dispatchEvent(new Event('input'));
+    });
+  });
+
+  // ── Keyboard Shortcuts ──
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if (e.key === 'Escape') {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.blur();
+    }
+  });
+
+  // ── Smooth Scroll for Sidebar Links ──
+  document.querySelectorAll('.sidebar a.nav-link').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var href = this.getAttribute('href');
+      if (href && href.charAt(0) === '#') {
+        e.preventDefault();
+        var target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          var details = target.closest('details');
+          if (details && !details.open) details.open = true;
+        }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
