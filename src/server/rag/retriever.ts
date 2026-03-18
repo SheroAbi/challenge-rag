@@ -121,10 +121,11 @@ export class UniversalRetriever {
   ): Promise<RetrievalHit[]> {
     try {
       const themeConfig = getThemeConfig(this.theme);
-      const ep2 = await getEmbeddingProvider();
-      const queryEmbedding = await ep2.embedSingle(request.query);
+      const ep2 = getEmbeddingProvider();
 
-      console.log(`[Retriever] Theme: ${this.theme}, RPC: ${themeConfig.matchRpc}, Query: "${request.query.substring(0, 50)}...", Embedding dims: ${queryEmbedding.length}`);
+      console.log(`[Retriever] Generating embedding for: "${request.query.substring(0, 50)}..."`);
+      const queryEmbedding = await ep2.embedSingle(request.query);
+      console.log(`[Retriever] Theme: ${this.theme}, RPC: ${themeConfig.matchRpc}, Embedding dims: ${queryEmbedding.length}, first 3 values: [${queryEmbedding.slice(0, 3).map(v => v.toFixed(4)).join(', ')}]`);
 
       const { data, error } = await supabase.rpc(themeConfig.matchRpc as string & keyof never, {
         query_embedding: queryEmbedding,
@@ -195,7 +196,8 @@ export class UniversalRetriever {
       }
 
       return hits;
-    } catch {
+    } catch (err) {
+      console.error(`[Retriever] Semantic search FAILED for theme=${this.theme}:`, err instanceof Error ? err.message : err);
       return [];
     }
   }
