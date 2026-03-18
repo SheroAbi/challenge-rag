@@ -9,14 +9,17 @@ if (!fs.existsSync(destDir)) {
 }
 
 // Only copy the WASM backends we actually need for the serverless function.
-// We DO NOT need WebGL or WebGPU binaries in a serverless environment (they are huge).
-const REQUIRED_PREFIXES = ['ort-wasm', 'ort-wasm-simd', 'ort-wasm-threaded', 'ort-wasm-simd-threaded'];
+// We DO NOT need WebGL, WebGPU, or Multi-threaded binaries in Lambda (Lambda is single threaded).
+// Keeping only the basic SIMD and non-SIMD standard cpu WASM modules.
+const REQUIRED_EXACT_FILES = [
+  'ort-wasm.wasm', 'ort-wasm.mjs',
+  'ort-wasm-simd.wasm', 'ort-wasm-simd.mjs'
+];
 
 if (fs.existsSync(srcDir)) {
   const files = fs.readdirSync(srcDir);
   for (const file of files) {
-    if ((file.endsWith('.wasm') || file.endsWith('.mjs')) &&
-        REQUIRED_PREFIXES.some(prefix => file.startsWith(prefix))) {
+    if (REQUIRED_EXACT_FILES.includes(file)) {
       const srcFile = path.join(srcDir, file);
       const destFile = path.join(destDir, file);
       fs.copyFileSync(srcFile, destFile);
