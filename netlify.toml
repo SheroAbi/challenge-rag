@@ -13,7 +13,9 @@
 [functions]
   included_files = [
     "node_modules/onnxruntime-web/dist/*.wasm",
-    "node_modules/onnxruntime-web/dist/*.mjs"
+    "node_modules/onnxruntime-web/dist/*.mjs",
+    "node_modules/@xenova/transformers/dist/*.wasm",
+    "node_modules/@xenova/transformers/dist/*.mjs"
   ]
   node_bundler = "esbuild"
   external_node_modules = [

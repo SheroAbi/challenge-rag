@@ -3,6 +3,12 @@ import type { EmbeddingProvider, EmbeddingResult } from "./embedding-provider";
 
 env.allowLocalModels = false;
 env.useBrowserCache = false;
+env.allowRemoteModels = true;
+
+// Netlify Lambda (AWS) has a read-only filesystem except for /tmp
+// We must redirect Xenova's cache directory there
+// @ts-ignore
+env.cacheDir = "/tmp";
 
 // WASM configuration for Netlify/Lambda
 // This forces WASM single thread mode to avoid native binary errors
