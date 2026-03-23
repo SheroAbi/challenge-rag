@@ -30,10 +30,10 @@ function tableToThemeKey(tableName: string): string | null {
 
 // Standard-Icons und Farben für bekannte und unbekannte Themes
 const THEME_VISUALS: Record<string, { icon: string; color: string }> = {
-  food: { icon: "🥗", color: "from-emerald-500 to-teal-600" },
-  saas_docs: { icon: "📘", color: "from-blue-500 to-indigo-600" },
-  exercises: { icon: "💪", color: "from-orange-500 to-red-600" },
-  _default: { icon: "📦", color: "from-purple-500 to-violet-600" },
+  food: { icon: "🥗", color: "from-primary to-primary/80" },
+  saas_docs: { icon: "📘", color: "from-primary to-primary/80" },
+  exercises: { icon: "💪", color: "from-primary to-primary/80" },
+  _default: { icon: "📦", color: "from-primary to-primary/80" },
 };
 
 export async function GET() {

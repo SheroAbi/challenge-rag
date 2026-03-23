@@ -22,8 +22,8 @@ export default function LandingPage() {
             Recruiting-Challenge – RAG-System
           </div>
 
-          <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-7xl md:text-[5.5rem] lg:text-[6rem]">
-            RAG Challenge <br /> für <span className="bg-gradient-to-br from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent filter drop-shadow-sm border-b-[6px] border-primary/20">Everlast</span>
+          <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-7xl lg:text-[6rem]">
+            RAG Challenge <br className="hidden sm:block" /> für <span className="bg-gradient-to-br from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent filter drop-shadow-sm border-b-[4px] sm:border-b-[6px] border-primary/20">Everlast</span>
           </h1>
 
           <p className="mx-auto mt-8 max-w-2xl text-lg sm:text-lg leading-relaxed text-muted-foreground font-medium">

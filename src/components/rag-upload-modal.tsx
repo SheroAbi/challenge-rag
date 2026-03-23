@@ -52,7 +52,7 @@ const FALLBACK_TABLES: RagTableInfo[] = [
     label: "Nutrition & Food",
     description: "Lebensmittel, Nährwerte, MFP-Imports",
     icon: "🥗",
-    color: "from-emerald-500 to-teal-600",
+    color: "from-primary to-primary/80",
     rowCount: 0,
     hasMatchRpc: true,
   },
@@ -62,7 +62,7 @@ const FALLBACK_TABLES: RagTableInfo[] = [
     label: "SaaS Help Center",
     description: "Help-Artikel, API-Docs, FAQs",
     icon: "📘",
-    color: "from-blue-500 to-indigo-600",
+    color: "from-primary to-primary/80",
     rowCount: 0,
     hasMatchRpc: true,
   },
@@ -72,7 +72,7 @@ const FALLBACK_TABLES: RagTableInfo[] = [
     label: "Workout & Exercises",
     description: "Übungen, Muskelgruppen, Fitness",
     icon: "💪",
-    color: "from-orange-500 to-red-600",
+    color: "from-primary to-primary/80",
     rowCount: 0,
     hasMatchRpc: true,
   },
@@ -303,9 +303,9 @@ export default function RagUploadModal({ isOpen, onClose }: { isOpen: boolean; o
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-xl mx-4 bg-card border border-border rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
+      <div className="relative w-full max-w-xl mx-4 bg-card border border-border rounded-3xl shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[calc(100dvh-3rem)]">
         {/* Gradient Header */}
-        <div className={`relative bg-gradient-to-r ${selectedTable.color} px-6 py-5`}>
+        <div className={`shrink-0 relative bg-gradient-to-r ${selectedTable.color} px-4 sm:px-6 py-4 sm:py-5`}>
           <div className="absolute inset-0 bg-black/10" />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -326,7 +326,7 @@ export default function RagUploadModal({ isOpen, onClose }: { isOpen: boolean; o
           </div>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
           {/* Target Table Selector */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -410,7 +410,7 @@ export default function RagUploadModal({ isOpen, onClose }: { isOpen: boolean; o
                   : selectedFile
                   ? "border-primary/50 bg-primary/5"
                   : "border-border hover:border-primary/40 hover:bg-muted/50"
-              } p-8`}
+              } p-6 sm:p-8`}
             >
               <input
                 ref={fileInputRef}
@@ -421,25 +421,25 @@ export default function RagUploadModal({ isOpen, onClose }: { isOpen: boolean; o
               />
 
               {selectedFile ? (
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <FileSpreadsheet className="h-7 w-7" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate">{selectedFile.name}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  <div className="flex-1 min-w-0 flex flex-col items-center sm:items-start">
+                    <p className="font-semibold text-foreground truncate w-full sm:w-auto">{selectedFile.name}</p>
+                    <div className="flex flex-wrap justify-center sm:justify-start items-center gap-1.5 sm:gap-3 mt-2 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground">
                       <span>{formatFileSize(selectedFile.size)}</span>
-                      <span>·</span>
+                      <span className="hidden sm:inline">·</span>
                       <span className="font-mono">{selectedFile.name.split(".").pop()?.toUpperCase()}</span>
-                      <span>·</span>
-                      <span className="text-primary font-medium">→ {selectedTable.label}</span>
+                      <span className="hidden sm:inline">·</span>
+                      <span className="text-primary font-medium break-words">→ {selectedTable.label}</span>
                     </div>
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); reset(); }}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all text-muted-foreground"
+                    className="mt-3 sm:mt-0 flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-muted/50 hover:bg-destructive/10 hover:text-destructive transition-all text-muted-foreground"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               ) : (
@@ -554,11 +554,11 @@ export default function RagUploadModal({ isOpen, onClose }: { isOpen: boolean; o
           )}
 
           {/* Action Button */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-2 sm:mt-4 pb-2">
             {stage === "selected" && (
               <button
                 onClick={handleUpload}
-                className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${selectedTable.color} px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
+                className={`w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${selectedTable.color} px-6 py-3.5 sm:py-3 text-sm font-bold text-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
               >
                 <Upload className="h-4 w-4" />
                 Importieren & Einbetten
@@ -569,13 +569,13 @@ export default function RagUploadModal({ isOpen, onClose }: { isOpen: boolean; o
               <>
                 <button
                   onClick={reset}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-all"
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-6 py-3.5 sm:py-3 text-sm font-semibold text-foreground hover:bg-muted transition-all"
                 >
                   Weiteren Import
                 </button>
                 <button
                   onClick={handleClose}
-                  className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${selectedTable.color} px-6 py-3 text-sm font-bold text-white shadow-lg hover:shadow-xl transition-all`}
+                  className={`w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${selectedTable.color} px-6 py-3.5 sm:py-3 text-sm font-bold text-white shadow-lg hover:shadow-xl transition-all`}
                 >
                   Fertig
                 </button>

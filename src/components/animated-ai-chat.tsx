@@ -7,6 +7,7 @@ import {
   Paperclip,
   SendIcon,
   XIcon,
+  ArrowUp,
   Loader2,
   Sparkles,
   Database,
@@ -333,8 +334,8 @@ export default function AnimatedAIChat() {
               )}
             </AnimatePresence>
 
-            <div className="border-border/50 bg-muted/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t px-6 py-4 rounded-b-3xl">
-              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+            <div className="border-border/50 bg-muted/20 flex flex-row items-center justify-between gap-2 sm:gap-4 border-t px-4 sm:px-6 py-3 sm:py-4 rounded-b-3xl">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 flex-1">
                 {/* File Attachment Mock */}
                 <motion.button
                   type="button"
@@ -356,14 +357,14 @@ export default function AnimatedAIChat() {
                       type="button"
                       onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
                       className={cn(
-                        "flex items-center justify-between gap-3 bg-background border border-border/80 rounded-xl px-3 py-1.5 text-xs font-semibold text-foreground outline-none hover:bg-muted/50 focus:ring-2 focus:ring-primary/30 shadow-sm cursor-pointer transition-all min-w-[150px]",
+                        "flex items-center justify-between gap-2 sm:gap-3 bg-background border border-border/80 rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-foreground outline-none hover:bg-muted/50 focus:ring-2 focus:ring-primary/30 shadow-sm cursor-pointer transition-all min-w-[120px] sm:min-w-[150px]",
                         isThemeDropdownOpen && "ring-2 ring-primary/30 border-primary/50 bg-muted/30"
                       )}
                     >
                       <span className="flex items-center gap-2">
-                        {theme === 'food' && <span className="h-2 w-2 rounded-full bg-emerald-500" />}
-                        {theme === 'saas_docs' && <span className="h-2 w-2 rounded-full bg-blue-500" />}
-                        {theme === 'exercises' && <span className="h-2 w-2 rounded-full bg-orange-500" />}
+                        {theme === 'food' && <span className="h-2 w-2 rounded-full bg-primary" />}
+                        {theme === 'saas_docs' && <span className="h-2 w-2 rounded-full bg-primary" />}
+                        {theme === 'exercises' && <span className="h-2 w-2 rounded-full bg-primary" />}
                         {currentTheme.label}
                       </span>
                       <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-300", isThemeDropdownOpen && "rotate-180")} />
@@ -377,7 +378,7 @@ export default function AnimatedAIChat() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 15, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute bottom-full left-0 mb-3 w-[240px] bg-background/95 backdrop-blur-xl border border-border/80 rounded-2xl shadow-2xl overflow-hidden z-50 origin-bottom-left"
+                        className="absolute bottom-full left-0 mb-3 w-[240px] max-w-[calc(100vw-3rem)] bg-background/95 backdrop-blur-xl border border-border/80 rounded-2xl shadow-2xl overflow-hidden z-50 origin-bottom-left"
                         style={{ boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1), 0 0 20px rgba(0,0,0,0.05)' }}
                       >
                         <div className="flex flex-col p-2 space-y-1">
@@ -454,7 +455,7 @@ export default function AnimatedAIChat() {
                 whileTap={{ scale: 0.96 }}
                 disabled={isTyping || !value.trim()}
                 className={cn(
-                  'rounded-xl px-6 py-2.5 text-sm font-bold transition-all duration-300 w-full sm:w-auto mt-2 sm:mt-0',
+                  'rounded-full sm:rounded-xl p-3 sm:px-6 sm:py-2.5 text-sm font-bold transition-all duration-300 shrink-0',
                   'flex items-center justify-center gap-2 shadow-sm',
                   (value.trim() && !isTyping)
                     ? 'bg-primary text-primary-foreground shadow-primary/25 shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5'
@@ -468,12 +469,15 @@ export default function AnimatedAIChat() {
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                   >
-                    <Loader2 className="h-4 w-4" />
+                    <Loader2 className="h-5 w-5 sm:h-4 sm:w-4" />
                   </motion.div>
                 ) : (
-                  <SendIcon className="h-4 w-4" />
+                  <>
+                    <ArrowUp className="h-5 w-5 sm:hidden" />
+                    <SendIcon className="hidden sm:block h-4 w-4" />
+                  </>
                 )}
-                <span>{isTyping ? 'Senden...' : 'Senden'}</span>
+                <span className="hidden sm:inline">{isTyping ? 'Senden...' : 'Senden'}</span>
               </motion.button>
             </div>
           </motion.div>
@@ -482,7 +486,7 @@ export default function AnimatedAIChat() {
         <AnimatePresence>
           {isTyping && (
             <motion.div
-              className="border-border/40 bg-background/90 absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border px-5 py-2.5 shadow-2xl backdrop-blur-3xl z-20"
+              className="border-border/40 bg-background/90 absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border px-5 py-2.5 shadow-2xl backdrop-blur-3xl z-20 w-[max-content] max-w-[90vw]"
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.9 }}
@@ -634,13 +638,13 @@ export default function AnimatedAIChat() {
                       [&_strong]:font-semibold [&_strong]:text-foreground
                       [&_a]:text-primary [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary/80 transition-colors
                       [&_blockquote]:border-l-4 [&_blockquote]:border-primary/40 [&_blockquote]:bg-primary/5 [&_blockquote]:pl-4 [&_blockquote]:py-1 [&_blockquote]:pr-4 [&_blockquote]:rounded-r-lg [&_blockquote]:italic [&_blockquote]:text-muted-foreground/90 [&_blockquote]:mb-5
-                      [&_pre]:bg-muted/40 [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:overflow-x-auto [&_pre]:border [&_pre]:border-border/50 [&_pre]:shadow-inner [&_pre]:mb-5
-                      [&_:not(pre)>code]:bg-primary/10 [&_:not(pre)>code]:text-primary [&_:not(pre)>code]:px-1.5 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:rounded-md [&_:not(pre)>code]:text-[0.9em] [&_:not(pre)>code]:font-mono [&_:not(pre)>code]:shadow-sm
+                      [&_pre]:bg-muted/40 [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:overflow-x-auto [&_pre]:max-w-full [&_pre]:border [&_pre]:border-border/50 [&_pre]:shadow-inner [&_pre]:mb-5
+                      [&_:not(pre)>code]:break-words [&_:not(pre)>code]:bg-primary/10 [&_:not(pre)>code]:text-primary [&_:not(pre)>code]:px-1.5 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:rounded-md [&_:not(pre)>code]:text-[0.9em] [&_:not(pre)>code]:font-mono [&_:not(pre)>code]:shadow-sm
                     ">
                       <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          table: ({node, ...props}) => <div className="overflow-x-auto my-6 rounded-xl border border-border/50 shadow-sm bg-background/50 backdrop-blur-sm"><table className="w-full text-sm text-left border-collapse" {...props} /></div>,
+                          table: ({node, ...props}) => <div className="overflow-x-auto max-w-full my-6 rounded-xl border border-border/50 shadow-sm bg-background/50 backdrop-blur-sm"><table className="w-full text-sm text-left border-collapse" {...props} /></div>,
                           thead: ({node, ...props}) => <thead className="bg-muted/40 text-muted-foreground text-xs uppercase tracking-wider" {...props} />,
                           th: ({node, ...props}) => <th className="px-4 py-3 font-semibold border-b border-border/80" {...props} />,
                           td: ({node, ...props}) => <td className="px-4 py-3 border-b border-border/40 text-foreground" {...props} />,
@@ -825,7 +829,7 @@ export default function AnimatedAIChat() {
                         {response.resultTable.title}
                       </h4>
                     </div>
-                    <div className="overflow-x-auto rounded-xl border border-border/50 shadow-sm">
+                    <div className="overflow-x-auto max-w-full rounded-xl border border-border/50 shadow-sm">
                       <table className="w-full text-sm text-left border-collapse">
                         <thead className="text-xs text-muted-foreground uppercase tracking-wider bg-muted/40">
                           <tr>
@@ -862,7 +866,7 @@ export default function AnimatedAIChat() {
                         Verwendete Quellen <span className="text-muted-foreground font-normal text-sm ml-1">({response.citations.length})</span>
                       </h4>
                     </div>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto max-w-full">
                       <table className="w-full text-sm text-left border-collapse">
                         <thead className="text-xs text-muted-foreground uppercase tracking-wider">
                           <tr>
@@ -885,7 +889,7 @@ export default function AnimatedAIChat() {
                                 </div>
                               </td>
                               <td className="px-4 py-4 align-top text-muted-foreground">
-                                <div className="line-clamp-2 leading-relaxed hover:line-clamp-none transition-all duration-300">
+                                <div className="line-clamp-2 leading-relaxed hover:line-clamp-none transition-all duration-300 break-words">
                                   {cite.content}
                                 </div>
                               </td>

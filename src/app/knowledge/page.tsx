@@ -85,22 +85,22 @@ export default function KnowledgePage() {
       label: "Food Items",
       value: stats?.foodItems ?? "—",
       icon: Database,
-      gradient: "from-emerald-500/20 to-teal-500/20",
-      iconColor: "text-emerald-500",
+      gradient: "from-primary/20 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       label: "RAG Chunks",
       value: loading ? "—" : totalChunks,
       icon: Layers,
-      gradient: "from-blue-500/20 to-indigo-500/20",
-      iconColor: "text-blue-500",
+      gradient: "from-primary/15 to-primary/5",
+      iconColor: "text-primary/80",
     },
     {
       label: "Imports",
       value: stats?.importRuns ?? "—",
       icon: TrendingUp,
-      gradient: "from-purple-500/20 to-pink-500/20",
-      iconColor: "text-purple-500",
+      gradient: "from-foreground/10 to-transparent",
+      iconColor: "text-foreground/70",
     },
     {
       label: "Letzter Import",
@@ -110,8 +110,8 @@ export default function KnowledgePage() {
           })
         : "—",
       icon: Clock,
-      gradient: "from-orange-500/20 to-red-500/20",
-      iconColor: "text-orange-500",
+      gradient: "from-muted/50 to-transparent",
+      iconColor: "text-muted-foreground",
     },
   ];
 
@@ -139,16 +139,17 @@ export default function KnowledgePage() {
             </button>
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <Upload className="h-4 w-4" />
-              Importieren
+              <Upload className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Importieren</span>
+              <span className="sm:hidden">Import</span>
             </button>
           </div>
         </div>
 
         {/* Live Stats */}
-        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
           {statCards.map((stat) => (
             <div
               key={stat.label}
@@ -182,9 +183,9 @@ export default function KnowledgePage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {(ragTables.length > 0 ? ragTables : [
-              { tableName: "rag_food_chunks", themeKey: "food", label: "Nutrition & Food", icon: "🥗", color: "from-emerald-500 to-teal-600", rowCount: 0, description: "", hasMatchRpc: true },
-              { tableName: "rag_saas_chunks", themeKey: "saas_docs", label: "SaaS Help Center", icon: "📘", color: "from-blue-500 to-indigo-600", rowCount: 0, description: "", hasMatchRpc: true },
-              { tableName: "rag_exercise_chunks", themeKey: "exercises", label: "Exercises", icon: "💪", color: "from-orange-500 to-red-600", rowCount: 0, description: "", hasMatchRpc: true },
+              { tableName: "rag_food_chunks", themeKey: "food", label: "Nutrition & Food", icon: "🥗", color: "from-primary to-primary/80", rowCount: 0, description: "", hasMatchRpc: true },
+              { tableName: "rag_saas_chunks", themeKey: "saas_docs", label: "SaaS Help Center", icon: "📘", color: "from-primary to-primary/80", rowCount: 0, description: "", hasMatchRpc: true },
+              { tableName: "rag_exercise_chunks", themeKey: "exercises", label: "Exercises", icon: "💪", color: "from-primary to-primary/80", rowCount: 0, description: "", hasMatchRpc: true },
             ]).map((db) => (
               <div
                 key={db.tableName}
@@ -216,7 +217,7 @@ export default function KnowledgePage() {
                     </div>
                   )}
                 </div>
-                <div className={`mt-3 h-1 w-full rounded-full bg-${db.themeKey === "food" ? "emerald" : db.themeKey === "saas_docs" ? "blue" : "orange"}-500/10`}>
+                <div className="mt-3 h-1 w-full rounded-full bg-primary/10">
                   <div
                     className={`h-full rounded-full bg-gradient-to-r ${db.color} transition-all duration-1000`}
                     style={{ width: db.rowCount > 0 ? "100%" : "0%" }}
@@ -277,7 +278,7 @@ export default function KnowledgePage() {
 
         {/* Add Document CTA */}
         <div
-          className="mt-4 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/10 transition-all group"
+          className="mt-4 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/10 transition-all group"
           onClick={() => setIsUploadOpen(true)}
         >
           <Plus className="mx-auto h-8 w-8 text-primary/60 group-hover:text-primary transition-colors" />

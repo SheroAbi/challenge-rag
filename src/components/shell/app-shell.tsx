@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sparkles } from "lucide-react";
 import { AppSidebar } from "./app-sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -58,14 +58,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         />
       </motion.div>
 
-      {/* ===== Mobile Menu Trigger ===== */}
-      <button
-        onClick={() => setIsDrawerOpen(true)}
-        className="fixed bottom-6 right-6 z-40 lg:hidden flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95"
-        aria-label="Navigation Menü öffnen"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+      {/* ===== Mobile Top Bar ===== */}
+      <div className="fixed top-0 left-0 right-0 h-14 bg-background/80 backdrop-blur-md border-b border-border/50 z-40 lg:hidden flex items-center justify-between px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+        <div className="flex items-center gap-2 font-bold text-foreground">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <span>Everlast RAG</span>
+        </div>
+        <button
+          onClick={() => setIsDrawerOpen(true)}
+          className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Navigation Menü öffnen"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+      </div>
 
       {/* ===== Mobile Drawer Overlay (unter lg) ===== */}
       <AnimatePresence>
@@ -87,7 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: "-100%", scale: 0.95 }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-              className="fixed inset-y-0 left-0 z-50 p-0 sm:p-0 lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 p-0 sm:p-0 lg:hidden w-[clamp(280px,80vw,400px)]"
             >
               <div className="relative h-full">
                 {/* Close Button inside Drawer padding but outside sidebar */}
@@ -107,7 +113,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
 
       {/* ===== Hauptinhalt ===== */}
-      <main className="flex-1 w-full min-w-0 flex flex-col relative">
+      <main className="flex-1 w-full min-w-0 flex flex-col relative pt-14 lg:pt-0">
         {children}
       </main>
     </div>

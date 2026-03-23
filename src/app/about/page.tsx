@@ -67,7 +67,7 @@ export default function AboutPage() {
             <Shield className="h-4 w-4" />
             Architektur & Tech Stack
           </div>
-          <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl mb-6">
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl mb-6">
             Über das <span className="bg-gradient-to-br from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent filter drop-shadow-sm">Projekt</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -150,8 +150,8 @@ export default function AboutPage() {
 
         {/* ========== Architecture Overview ========== */}
         <div className="mx-auto max-w-7xl relative z-10 mt-32">
-          <div className="mb-20 text-center">
-            <h2 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+          <div className="mb-16 sm:mb-20 text-center">
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Architektur-Transparenz
             </h2>
             <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
@@ -159,7 +159,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:gap-10">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:gap-10">
             {ARCHITECTURE_LAYERS.map((layer) => (
               <div
                 key={layer.title}
