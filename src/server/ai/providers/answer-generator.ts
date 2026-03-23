@@ -2,11 +2,19 @@
  * AnswerGenerator-Interface.
  * Definiert den Vertrag für LLM-basierte Antwortgenerierung.
  */
+
+export type StreamChunk =
+  | { type: "token"; text: string }
+  | { type: "done"; answer: string; tokenCount: number; latencyMs: number };
+
 export interface AnswerGenerator {
   readonly name: string;
   readonly model: string;
 
   generate(request: GenerateInput): Promise<GenerateOutput>;
+
+  /** Optional streaming generation. Yields token chunks and a final done chunk. */
+  generateStream?(request: GenerateInput): AsyncGenerator<StreamChunk>;
 }
 
 export interface GenerateInput {

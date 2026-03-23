@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, Sparkles } from "lucide-react";
 import { AppSidebar } from "./app-sidebar";
 import { motion, AnimatePresence } from "framer-motion";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 /**
  * Globale AppShell.
@@ -114,7 +115,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* ===== Hauptinhalt ===== */}
       <main className="flex-1 w-full min-w-0 flex flex-col relative pt-14 lg:pt-0">
-        {children}
+        <ErrorBoundary fallbackTitle="Seitenfehler">
+          {children}
+        </ErrorBoundary>
       </main>
     </div>
   );

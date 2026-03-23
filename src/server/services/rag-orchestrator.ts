@@ -3,6 +3,7 @@ import { getThemeConfig } from "@/server/rag/theme-router";
 import { UniversalRetriever } from "@/server/rag/retriever";
 import type { RetrievalHit } from "@/server/rag/retriever";
 import { GeminiAnswerGenerator } from "@/server/ai/providers/gemini-answer-generator";
+import type { StreamChunk } from "@/server/ai/providers/answer-generator";
 import { isGeminiConfigured } from "@/server/ai/config/gemini-config";
 import { NotImplementedServiceError } from "@/lib/errors";
 
@@ -42,8 +43,27 @@ export interface RagOrchestratorOutput {
   };
 }
 
+/** Metadata available before streaming tokens start */
+export interface StreamMeta {
+  sessionId: string;
+  model: string | null;
+  citations: Citation[];
+  resultTable?: {
+    title: string;
+    columns: string[];
+    rows: string[][];
+  };
+  retrievalHits: RetrievalHit[];
+}
+
+export interface StreamQueryResult {
+  meta: StreamMeta;
+  tokenStream: AsyncGenerator<StreamChunk>;
+}
+
 export interface IRagOrchestrator {
   query(input: RagOrchestratorInput): Promise<RagOrchestratorOutput>;
+  queryStream(input: RagOrchestratorInput): Promise<StreamQueryResult>;
 }
 
 const answerGenerator = new GeminiAnswerGenerator();
@@ -111,6 +131,73 @@ export class RagOrchestrator implements IRagOrchestrator {
     };
   }
 
+  /**
+   * Streaming query: performs retrieval, then streams generation tokens.
+   * Returns meta immediately after retrieval, plus an async token generator.
+   */
+  async queryStream(input: RagOrchestratorInput): Promise<StreamQueryResult> {
+    const themeConfig = getThemeConfig(input.theme);
+
+    if (!isGeminiConfigured()) {
+      throw new NotImplementedServiceError(
+        "RagOrchestrator",
+        `queryStream (${themeConfig.label}) – GEMINI_API_KEY nicht konfiguriert`
+      );
+    }
+
+    if (!answerGenerator.generateStream) {
+      throw new Error("Answer generator does not support streaming");
+    }
+
+    // 1. Retrieval (identical to query)
+    const retriever = new UniversalRetriever(input.theme);
+    const retrievalResult = await retriever.search({
+      query: input.question,
+      topK: input.topK,
+      threshold: 0.1,
+    });
+
+    // 2. Build context chunks
+    const contextChunks = retrievalResult.matches.map((hit) => ({
+      content: hit.content,
+      documentTitle: hit.documentTitle,
+      chunkId: hit.chunkId,
+    }));
+
+    // 3. Citations
+    const isExercise = input.theme === "exercises";
+    const citations: Citation[] = retrievalResult.matches.map((hit) => ({
+      documentId: hit.documentId,
+      documentTitle: hit.documentTitle,
+      chunkId: hit.chunkId,
+      content: isExercise ? hit.content : hit.content.substring(0, 300),
+      relevanceScore: hit.score,
+      metadata: hit.metadata,
+    }));
+
+    // 4. Result table
+    const resultTable = this.buildResultTable(input.theme, retrievalResult.matches);
+
+    // 5. Meta (available immediately)
+    const meta: StreamMeta = {
+      sessionId: input.sessionId || crypto.randomUUID(),
+      model: answerGenerator.model,
+      citations,
+      resultTable,
+      retrievalHits: retrievalResult.matches,
+    };
+
+    // 6. Token stream (lazy — starts generating only when iterated)
+    const tokenStream = answerGenerator.generateStream({
+      question: input.question,
+      contextChunks,
+      tone: "professional",
+      systemPrompt: themeConfig.promptHint,
+    });
+
+    return { meta, tokenStream };
+  }
+
   private buildResultTable(theme: ThemeKey, hits: RetrievalHit[]) {
     if (hits.length === 0) return undefined;
 
@@ -164,3 +251,4 @@ export class RagOrchestrator implements IRagOrchestrator {
 }
 
 export const ragOrchestrator: IRagOrchestrator = new RagOrchestrator();
+
